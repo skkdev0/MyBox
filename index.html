@@ -47,8 +47,7 @@
             color: #00BCD4;
         }
 
-        .memory-indicator {            font-size: 14px;
-            font-weight: bold;
+        .memory-indicator {            font-size: 14px;            font-weight: bold;
             color: #00E676;
             margin-left: 40px;
         }
@@ -97,8 +96,7 @@
             flex-direction: column;
             gap: 10px;
         }
-        .key-row {
-            display: flex;
+        .key-row {            display: flex;
             flex: 1;
             gap: 10px;
         }
@@ -140,15 +138,14 @@
         </div>
         <div class="history" id="history"></div>
         <div class="display-wrapper">
-            <input type="text" id="display" placeholder="0" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
+            <input type="text" id="display" placeholder="0" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="none" readonly>
         </div>
     </div>
 
     <!-- Keypad Section -->
     <div class="keypad-container" id="keypad"></div>
     <script>
-        // --- State Variables ---
-        let isDegreeMode = true;
+        // --- State Variables ---        let isDegreeMode = true;
         let isInverseMode = false;
         let memoryValue = 0;
         let hasMemory = false;
@@ -198,7 +195,6 @@
                     } else {
                         btn.classList.add('btn-num');
                     }
-
                     btn.addEventListener('click', () => handleKeyPress(keyText, btn));
                     btn.addEventListener('touchstart', (e) => { e.preventDefault(); handleKeyPress(keyText, btn); }, {passive: false});
                     
@@ -247,8 +243,7 @@
                     if (hasMemory) insertText(formatResult(memoryValue));
                     break;
                 case 'MS':
-                    try {
-                        memoryValue = evaluateMath(currentText);
+                    try {                        memoryValue = evaluateMath(currentText);
                         hasMemory = true;
                         memoryIndicator.textContent = 'M';
                         showToast('Saved to Memory');
@@ -298,7 +293,6 @@
             if (dynamicKeys['^']) dynamicKeys['^'].textContent = isInverseMode ? 'x²' : '^';
             if (dynamicKeys['√']) dynamicKeys['√'].textContent = isInverseMode ? '∛' : '√';
         }
-
         function calculateResult(expression) {
             if (!expression.trim()) return;
             try {
@@ -347,8 +341,7 @@
                 this.ch = (++this.pos < this.str.length) ? this.str.charCodeAt(this.pos) : -1;
             }
 
-            eat(charToEat) {
-                while (this.ch === 32) this.nextChar(); // skip spaces
+            eat(charToEat) {                while (this.ch === 32) this.nextChar(); // skip spaces
                 if (this.ch === charToEat) {
                     this.nextChar();
                     return true;
@@ -397,8 +390,7 @@
                 } else if ((this.ch >= 97 && this.ch <= 122) || this.ch === 8730) {
                     while ((this.ch >= 97 && this.ch <= 122) || this.ch === 8730) this.nextChar();
                     const func = this.str.substring(startPos, this.pos);
-                    x = this.parseFactor();
-                    
+                    x = this.parseFactor();                    
                     const trigX = isDegreeMode ? x * Math.PI / 180 : x;
 
                     if (func === 'sqrt' || func === '√') x = Math.sqrt(x);
@@ -447,7 +439,6 @@
                 btn.addEventListener('touchstart', e => e.preventDefault(), {passive: false});
             });
         }
-
         // Start
         init();
     </script>
