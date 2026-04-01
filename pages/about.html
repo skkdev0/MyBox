@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Page</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            text-align: center;
+        }
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            font-size: 1.2rem;
+        }
+        .symbol {
+            color: #ff4757;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <p>Welcome to the profile of:</p>
+        <!-- Yahan naam display hoga -->
+        <h1 id="person-name">Guest</h1>
+        <p>This is the about page.</p>
+    </div>
+
+    <script>
+        // Ye script URL ko read karegi
+        window.onload = function() {
+            // URL se parameters nikalna (jaise ?name=Rahul)
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // 'name' parameter ka value lena
+            const personName = urlParams.get('name');
+
+            // Agar naam mila hai, toh page update karo
+            if (personName) {
+                // Page ka Title change karo
+                document.title = personName + "'s About Page";
+                
+                // HTML mein naam display karo
+                document.getElementById('person-name').innerText = personName;
+            }
+        };
+    </script>
+
+</body>
+</html>
