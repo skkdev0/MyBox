@@ -5,30 +5,134 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Scientific Calculator</title>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background-color:#121212;color:#FFFFFF;height:100vh;display:flex;flex-direction:column;overflow:hidden}
-        .display-container{background-color:#1E1E24;padding:40px 40px 40px 40px;border-radius:0 0 40px 40px;flex:1.2;display:flex;flex-direction:column;margin:0 0 20px 0;box-shadow:0 4px 15px rgba(0,0,0,0.3)}
-        .indicators{display:flex;flex-direction:row;margin-bottom:30px}
-        .indicator{font-size:14px;font-weight:bold;color:#00BCD4}
-        .memory-indicator{font-size:14px;font-weight:bold;color:#00E676;margin-left:40px}
-        .history{color:#9E9E9E;font-size:22px;text-align:right;padding:30px 0 10px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:32px}
-        .display-wrapper{flex:1;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none}
-        .display-wrapper::-webkit-scrollbar{display:none}
-        #display{width:max-content;min-width:100%;background:transparent;border:none;color:#FFFFFF;font-size:52px;text-align:right;outline:none;caret-color:#FFFFFF;padding:0;margin:0;line-height:1.2}
-        #display::placeholder{color:#505050}
-        .keypad-container{flex:2.5;padding:10px 20px 20px 20px;display:flex;flex-direction:column;gap:10px}
-        .key-row{display:flex;flex:1;gap:10px}
-        .key{flex:1;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:bold;border-radius:35px;cursor:pointer;transition:filter 0.1s;text-align:center;padding:8px 4px}
-        .key:active{filter:brightness(0.85)}
-        .btn-num{background-color:#2C2C35;color:#FFFFFF}
-        .btn-op{background-color:#383845;color:#00E676}
-        .btn-func{background-color:#202028;color:#00BCD4}
-        .btn-equals{background-color:#FF9800;color:#FFFFFF}
-        .btn-del{background-color:#383845;color:#FF5252}
-        .key.inverse-active{border:2px solid #FF9800}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #121212;
+            color: #FFFFFF;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Display Section */
+        .display-container {
+            background-color: #1E1E24;
+            padding: 40px 40px 40px 40px;
+            border-radius: 0 0 40px 40px;
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            margin: 0 0 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .indicators {
+            display: flex;
+            flex-direction: row;
+            margin-bottom: 30px;
+        }
+
+        .indicator {
+            font-size: 14px;
+            font-weight: bold;
+            color: #00BCD4;
+        }
+
+        .memory-indicator {            font-size: 14px;
+            font-weight: bold;
+            color: #00E676;
+            margin-left: 40px;
+        }
+
+        .history {
+            color: #9E9E9E;
+            font-size: 22px;
+            text-align: right;
+            padding: 30px 0 10px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 32px;
+        }
+
+        .display-wrapper {
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .display-wrapper::-webkit-scrollbar { display: none; }
+
+        #display {
+            width: max-content;
+            min-width: 100%;
+            background: transparent;
+            border: none;
+            color: #FFFFFF;
+            font-size: 52px;
+            text-align: right;
+            outline: none;
+            caret-color: #FFFFFF;
+            padding: 0;
+            margin: 0;
+            line-height: 1.2;
+        }
+        #display::placeholder { color: #505050; }
+
+        /* Keypad Section */
+        .keypad-container {
+            flex: 2.5;
+            padding: 10px 20px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .key-row {
+            display: flex;
+            flex: 1;
+            gap: 10px;
+        }
+
+        .key {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            font-weight: bold;
+            border-radius: 35px;
+            cursor: pointer;
+            transition: filter 0.1s;
+            text-align: center;
+            padding: 8px 4px;
+        }
+
+        .key:active { filter: brightness(0.85); }
+
+        /* Button Colors */
+        .btn-num { background-color: #2C2C35; color: #FFFFFF; }
+        .btn-op { background-color: #383845; color: #00E676; }
+        .btn-func { background-color: #202028; color: #00BCD4; }
+        .btn-equals { background-color: #FF9800; color: #FFFFFF; }
+        .btn-del { background-color: #383845; color: #FF5252; }
+
+        .key.inverse-active {
+            border: 2px solid #FF9800;
+        }
     </style>
 </head>
-<body onselectstart="return false" oncontextmenu="return false">
+<body>
+    <!-- Display Section -->
     <div class="display-container">
         <div class="indicators">
             <span class="indicator" id="modeIndicator">DEG</span>
@@ -36,228 +140,315 @@
         </div>
         <div class="history" id="history"></div>
         <div class="display-wrapper">
-            <input type="text" id="display" placeholder="0" readonly inputmode="none" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <input type="text" id="display" placeholder="0" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
         </div>
     </div>
+
+    <!-- Keypad Section -->
     <div class="keypad-container" id="keypad"></div>
     <script>
-        let isDegreeMode=true;
-        let isInverseMode=false;
-        let memoryValue=0;
-        let hasMemory=false;
-        const display=document.getElementById('display');
-        const history=document.getElementById('history');
-        const modeIndicator=document.getElementById('modeIndicator');        const memoryIndicator=document.getElementById('memoryIndicator');
-        const keypad=document.getElementById('keypad');
-        const dynamicKeys={};
-        const keys=[
-            ["DEG","INV","MC","MR","MS"],
-            ["sin","cos","tan","log","ln"],
-            ["(",")","^","√","!"],
-            ["7","8","9","DEL","AC"],
-            ["4","5","6","×","÷"],
-            ["1","2","3","+","-"],
-            ["0",".","π","e","="]
+        // --- State Variables ---
+        let isDegreeMode = true;
+        let isInverseMode = false;
+        let memoryValue = 0;
+        let hasMemory = false;
+
+        // --- DOM Elements ---
+        const display = document.getElementById('display');
+        const history = document.getElementById('history');
+        const modeIndicator = document.getElementById('modeIndicator');
+        const memoryIndicator = document.getElementById('memoryIndicator');
+        const keypad = document.getElementById('keypad');
+        const dynamicKeys = {};
+
+        // --- Key Layout ---
+        const keys = [
+            ["DEG", "INV", "MC", "MR", "MS"],
+            ["sin", "cos", "tan", "log", "ln"],
+            ["(", ")", "^", "√", "!"],
+            ["7", "8", "9", "DEL", "AC"],
+            ["4", "5", "6", "×", "÷"],
+            ["1", "2", "3", "+", "-"],
+            ["0", ".", "π", "e", "="]
         ];
-        function buildKeypad(){
-            keys.forEach((row,rowIndex)=>{
-                const rowDiv=document.createElement('div');
-                rowDiv.className='key-row';
-                row.forEach(keyText=>{
-                    const btn=document.createElement('div');
-                    btn.className='key';
-                    btn.textContent=keyText;
-                    btn.dataset.key=keyText;
-                    if(rowIndex<=2){
+
+        // --- Build Keypad ---
+        function buildKeypad() {
+            keys.forEach((row, rowIndex) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'key-row';
+                
+                row.forEach(keyText => {
+                    const btn = document.createElement('div');
+                    btn.className = 'key';
+                    btn.textContent = keyText;
+                    btn.dataset.key = keyText;
+
+                    // Assign button styles
+                    if (rowIndex <= 2) {
                         btn.classList.add('btn-func');
-                        if(['sin','cos','tan','log','ln','^','√','DEG','INV'].includes(keyText)){
-                            dynamicKeys[keyText]=btn;
+                        if (['sin','cos','tan','log','ln','^','√','DEG','INV'].includes(keyText)) {
+                            dynamicKeys[keyText] = btn;
                         }
-                    }else if(/[+\-×÷^√!]/.test(keyText)){
+                    } else if (/[+\-×÷^√!]/.test(keyText)) {
                         btn.classList.add('btn-op');
-                    }else if(['DEL','AC','MC'].includes(keyText)){
+                    } else if (['DEL','AC','MC'].includes(keyText)) {
                         btn.classList.add('btn-del');
-                    }else if(keyText==='='){
-                        btn.classList.add('btn-equals');
-                    }else{
+                    } else if (keyText === '=') {                        btn.classList.add('btn-equals');
+                    } else {
                         btn.classList.add('btn-num');
                     }
-                    btn.addEventListener('click',()=>handleKeyPress(keyText,btn));
-                    btn.addEventListener('touchstart',(e)=>{e.preventDefault();handleKeyPress(keyText,btn);},{passive:false});
+
+                    btn.addEventListener('click', () => handleKeyPress(keyText, btn));
+                    btn.addEventListener('touchstart', (e) => { e.preventDefault(); handleKeyPress(keyText, btn); }, {passive: false});
+                    
                     rowDiv.appendChild(btn);
                 });
+                
                 keypad.appendChild(rowDiv);
             });
         }
-        function handleKeyPress(key,btnView){
-            const currentText=display.value;
-            let cursor=display.selectionStart;
-            if(cursor===undefined||cursor===null)cursor=currentText.length;
-            switch(key){
-                case'AC':display.value='';history.textContent='';break;
-                case'DEL':
-                    if(cursor>0){                        display.value=currentText.slice(0,cursor-1)+currentText.slice(cursor);
-                        display.setSelectionRange(cursor-1,cursor-1);
+
+        // --- Key Press Handler ---
+        function handleKeyPress(key, btnView) {
+            const currentText = display.value;
+            let cursor = display.selectionStart;
+            if (cursor === undefined || cursor === null) cursor = currentText.length;
+
+            switch(key) {
+                case 'AC':
+                    display.value = '';
+                    history.textContent = '';
+                    break;
+                case 'DEL':
+                    if (cursor > 0) {
+                        display.value = currentText.slice(0, cursor-1) + currentText.slice(cursor);
+                        display.setSelectionRange(cursor-1, cursor-1);
                     }
                     break;
-                case'DEG':
-                case'RAD':
-                    isDegreeMode=!isDegreeMode;
-                    modeIndicator.textContent=isDegreeMode?'DEG':'RAD';
-                    if(dynamicKeys['DEG'])dynamicKeys['DEG'].textContent=isDegreeMode?'DEG':'RAD';
+                case 'DEG':
+                case 'RAD':
+                    isDegreeMode = !isDegreeMode;
+                    modeIndicator.textContent = isDegreeMode ? 'DEG' : 'RAD';
+                    if (dynamicKeys['DEG']) dynamicKeys['DEG'].textContent = isDegreeMode ? 'DEG' : 'RAD';
                     break;
-                case'INV':toggleInverseMode();break;
-                case'=':calculateResult(currentText);break;
-                case'MC':memoryValue=0;hasMemory=false;memoryIndicator.textContent='';showToast('Memory Cleared');break;
-                case'MR':if(hasMemory)insertText(formatResult(memoryValue));break;
-                case'MS':
-                    try{
-                        memoryValue=evaluateMath(currentText);
-                        hasMemory=true;
-                        memoryIndicator.textContent='M';
+                case 'INV':
+                    toggleInverseMode();
+                    break;
+                case '=':
+                    calculateResult(currentText);
+                    break;
+                case 'MC':
+                    memoryValue = 0;
+                    hasMemory = false;
+                    memoryIndicator.textContent = '';
+                    showToast('Memory Cleared');
+                    break;                case 'MR':
+                    if (hasMemory) insertText(formatResult(memoryValue));
+                    break;
+                case 'MS':
+                    try {
+                        memoryValue = evaluateMath(currentText);
+                        hasMemory = true;
+                        memoryIndicator.textContent = 'M';
                         showToast('Saved to Memory');
-                    }catch(e){showToast('Invalid Expression');}
+                    } catch(e) { showToast('Invalid Expression'); }
                     break;
-                case'sin':case'cos':case'tan':case'log':case'ln':
-                case'asin':case'acos':case'atan':case'sinh':case'cosh':case'tanh':
-                case'abs':insertText(key+'(');break;
-                case'10^x':insertText('10^(');break;
-                case'e^x':insertText('e^(');break;
-                case'x²':insertText('^2');break;
-                case'x³':insertText('^3');break;
-                case'∛':insertText('cbrt(');break;
-                case'√':insertText('√(');break;
-                default:insertText(key);break;
+                case 'sin': case 'cos': case 'tan': case 'log': case 'ln':
+                case 'asin': case 'acos': case 'atan': case 'sinh': case 'cosh': case 'tanh':
+                case 'abs':
+                    insertText(key + '(');
+                    break;
+                case '10^x': insertText('10^('); break;
+                case 'e^x': insertText('e^('); break;
+                case 'x²': insertText('^2'); break;
+                case 'x³': insertText('^3'); break;
+                case '∛': insertText('cbrt('); break;
+                case '√': insertText('√('); break;
+                default:
+                    insertText(key);
+                    break;
             }
         }
-        function insertText(str){
-            let cursor=display.selectionStart;
-            if(cursor===undefined||cursor===null)cursor=display.value.length;
-            display.value=display.value.slice(0,cursor)+str+display.value.slice(cursor);
-            cursor+=str.length;
-            display.setSelectionRange(cursor,cursor);
+
+        function insertText(str) {
+            let cursor = display.selectionStart;
+            if (cursor === undefined || cursor === null) cursor = display.value.length;
+            display.value = display.value.slice(0, cursor) + str + display.value.slice(cursor);
+            cursor += str.length;
+            display.setSelectionRange(cursor, cursor);
+            display.focus();
         }
-        function toggleInverseMode(){
-            isInverseMode=!isInverseMode;
-            if(dynamicKeys['INV']){
-                dynamicKeys['INV'].style.color=isInverseMode?'#FF9800':'#00BCD4';
-                if(isInverseMode)dynamicKeys['INV'].classList.add('inverse-active');
+
+        function toggleInverseMode() {
+            isInverseMode = !isInverseMode;
+            
+            // Update INV button style
+            if (dynamicKeys['INV']) {
+                dynamicKeys['INV'].style.color = isInverseMode ? '#FF9800' : '#00BCD4';
+                if (isInverseMode) dynamicKeys['INV'].classList.add('inverse-active');
                 else dynamicKeys['INV'].classList.remove('inverse-active');
             }
-            if(dynamicKeys['sin'])dynamicKeys['sin'].textContent=isInverseMode?'asin':'sin';
-            if(dynamicKeys['cos'])dynamicKeys['cos'].textContent=isInverseMode?'acos':'cos';            if(dynamicKeys['tan'])dynamicKeys['tan'].textContent=isInverseMode?'atan':'tan';
-            if(dynamicKeys['log'])dynamicKeys['log'].textContent=isInverseMode?'10^x':'log';
-            if(dynamicKeys['ln'])dynamicKeys['ln'].textContent=isInverseMode?'e^x':'ln';
-            if(dynamicKeys['^'])dynamicKeys['^'].textContent=isInverseMode?'x²':'^';
-            if(dynamicKeys['√'])dynamicKeys['√'].textContent=isInverseMode?'∛':'√';
+            
+            // Toggle function labels
+            if (dynamicKeys['sin']) dynamicKeys['sin'].textContent = isInverseMode ? 'asin' : 'sin';
+            if (dynamicKeys['cos']) dynamicKeys['cos'].textContent = isInverseMode ? 'acos' : 'cos';            if (dynamicKeys['tan']) dynamicKeys['tan'].textContent = isInverseMode ? 'atan' : 'tan';
+            if (dynamicKeys['log']) dynamicKeys['log'].textContent = isInverseMode ? '10^x' : 'log';
+            if (dynamicKeys['ln']) dynamicKeys['ln'].textContent = isInverseMode ? 'e^x' : 'ln';
+            if (dynamicKeys['^']) dynamicKeys['^'].textContent = isInverseMode ? 'x²' : '^';
+            if (dynamicKeys['√']) dynamicKeys['√'].textContent = isInverseMode ? '∛' : '√';
         }
-        function calculateResult(expression){
-            if(!expression.trim())return;
-            try{
-                const result=evaluateMath(expression);
-                history.textContent=expression+' =';
-                display.value=formatResult(result);
-                display.setSelectionRange(display.value.length,display.value.length);
-            }catch(e){showToast('Format Error');}
+
+        function calculateResult(expression) {
+            if (!expression.trim()) return;
+            try {
+                const result = evaluateMath(expression);
+                history.textContent = expression + ' =';
+                display.value = formatResult(result);
+                display.setSelectionRange(display.value.length, display.value.length);
+            } catch(e) {
+                showToast('Format Error');
+            }
         }
-        function formatResult(result){
-            if(isNaN(result))return'Error';
-            if(!isFinite(result))return'Infinity';
-            if(result===Math.floor(result))return String(Math.floor(result));
-            let str=result.toPrecision(10);
+
+        function formatResult(result) {
+            if (isNaN(result)) return 'Error';
+            if (!isFinite(result)) return 'Infinity';
+            if (result === Math.floor(result)) return String(Math.floor(result));
+            let str = result.toPrecision(10);
             return str.replace(/\.?0+$/,'').replace(/\.e/,'e');
         }
-        function showToast(msg){
-            const toast=document.createElement('div');
-            toast.textContent=msg;
-            toast.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 24px;border-radius:25px;font-size:14px;z-index:1000;animation:fadeOut 2s forwards;';
+
+        function showToast(msg) {
+            // Simple toast implementation
+            const toast = document.createElement('div');
+            toast.textContent = msg;
+            toast.style.cssText = `
+                position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+                background: #333; color: #fff; padding: 12px 24px; border-radius: 25px;
+                font-size: 14px; z-index: 1000; animation: fadeOut 2s forwards;
+            `;
             document.body.appendChild(toast);
-            setTimeout(()=>toast.remove(),2000);
+            setTimeout(() => toast.remove(), 2000);
         }
-        class MathEvaluator{
-            constructor(expression){
-                this.str=expression.replace(/×/g,'*').replace(/÷/g,'/').replace(/π/g,'(3.141592653589793)').replace(/(?<![a-zA-Z])e(?![a-zA-Z])/g,'(2.718281828459045)');
-                this.pos=-1;
-                this.ch=-1;
+
+        // --- Math Evaluator (Recursive Descent Parser) ---
+        class MathEvaluator {
+            constructor(expression) {
+                this.str = expression
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/')
+                    .replace(/π/g, '(3.141592653589793)')
+                    .replace(/(?<![a-zA-Z])e(?![a-zA-Z])/g, '(2.718281828459045)');
+                this.pos = -1;
+                this.ch = -1;            }
+
+            nextChar() {
+                this.ch = (++this.pos < this.str.length) ? this.str.charCodeAt(this.pos) : -1;
             }
-            nextChar(){this.ch=(++this.pos<this.str.length)?this.str.charCodeAt(this.pos):-1;}
-            eat(charToEat){
-                while(this.ch===32)this.nextChar();
-                if(this.ch===charToEat){this.nextChar();return true;}
+
+            eat(charToEat) {
+                while (this.ch === 32) this.nextChar(); // skip spaces
+                if (this.ch === charToEat) {
+                    this.nextChar();
+                    return true;
+                }
                 return false;
             }
-            parse(){
+
+            parse() {
                 this.nextChar();
-                const x=this.parseExpression();
-                if(this.pos<this.str.length)throw new Error('Unexpected: '+String.fromCharCode(this.ch));
+                const x = this.parseExpression();
+                if (this.pos < this.str.length) throw new Error('Unexpected: ' + String.fromCharCode(this.ch));
                 return x;
             }
-            parseExpression(){
-                let x=this.parseTerm();
-                while(true){                    if(this.eat('+'.charCodeAt(0)))x+=this.parseTerm();
-                    else if(this.eat('-'.charCodeAt(0)))x-=this.parseTerm();
+
+            parseExpression() {
+                let x = this.parseTerm();
+                while (true) {
+                    if (this.eat('+'.charCodeAt(0))) x += this.parseTerm();
+                    else if (this.eat('-'.charCodeAt(0))) x -= this.parseTerm();
                     else return x;
                 }
             }
-            parseTerm(){
-                let x=this.parseFactor();
-                while(true){
-                    if(this.eat('*'.charCodeAt(0)))x*=this.parseFactor();
-                    else if(this.eat('/'.charCodeAt(0)))x/=this.parseFactor();
-                    else if(this.eat('%'.charCodeAt(0)))x%=this.parseFactor();
+
+            parseTerm() {
+                let x = this.parseFactor();
+                while (true) {
+                    if (this.eat('*'.charCodeAt(0))) x *= this.parseFactor();
+                    else if (this.eat('/'.charCodeAt(0))) x /= this.parseFactor();
+                    else if (this.eat('%'.charCodeAt(0))) x %= this.parseFactor();
                     else return x;
                 }
             }
-            parseFactor(){
-                if(this.eat('+'.charCodeAt(0)))return this.parseFactor();
-                if(this.eat('-'.charCodeAt(0)))return -this.parseFactor();
+
+            parseFactor() {
+                if (this.eat('+'.charCodeAt(0))) return this.parseFactor();
+                if (this.eat('-'.charCodeAt(0))) return -this.parseFactor();
+
                 let x;
-                const startPos=this.pos;
-                if(this.eat('('.charCodeAt(0))){
-                    x=this.parseExpression();
-                    this.eat(')'.charCodeAt(0));
-                }else if((this.ch>=48&&this.ch<=57)||this.ch===46){
-                    while((this.ch>=48&&this.ch<=57)||this.ch===46)this.nextChar();
-                    x=parseFloat(this.str.substring(startPos,this.pos));
-                }else if((this.ch>=97&&this.ch<=122)||this.ch===8730){
-                    while((this.ch>=97&&this.ch<=122)||this.ch===8730)this.nextChar();
-                    const func=this.str.substring(startPos,this.pos);
-                    x=this.parseFactor();
-                    const trigX=isDegreeMode?x*Math.PI/180:x;
-                    if(func==='sqrt'||func==='√')x=Math.sqrt(x);
-                    else if(func==='cbrt')x=Math.cbrt(x);
-                    else if(func==='sin')x=Math.sin(trigX);
-                    else if(func==='cos')x=Math.cos(trigX);
-                    else if(func==='tan')x=Math.tan(trigX);
-                    else if(func==='asin')x=isDegreeMode?Math.asin(x)*180/Math.PI:Math.asin(x);
-                    else if(func==='acos')x=isDegreeMode?Math.acos(x)*180/Math.PI:Math.acos(x);
-                    else if(func==='atan')x=isDegreeMode?Math.atan(x)*180/Math.PI:Math.atan(x);
-                    else if(func==='sinh')x=Math.sinh(x);
-                    else if(func==='cosh')x=Math.cosh(x);
-                    else if(func==='tanh')x=Math.tanh(x);
-                    else if(func==='log')x=Math.log10(x);
-                    else if(func==='ln')x=Math.log(x);
-                    else if(func==='abs')x=Math.abs(x);
-                    else throw new Error('Unknown function: '+func);
-                }else{throw new Error('Unexpected: '+String.fromCharCode(this.ch));}
-                if(this.eat('^'.charCodeAt(0)))x=Math.pow(x,this.parseFactor());
-                if(this.eat('!'.charCodeAt(0)))x=this.factorial(x);
+                const startPos = this.pos;
+
+                if (this.eat('('.charCodeAt(0))) {
+                    x = this.parseExpression();                    this.eat(')'.charCodeAt(0));
+                } else if ((this.ch >= 48 && this.ch <= 57) || this.ch === 46) {
+                    while ((this.ch >= 48 && this.ch <= 57) || this.ch === 46) this.nextChar();
+                    x = parseFloat(this.str.substring(startPos, this.pos));
+                } else if ((this.ch >= 97 && this.ch <= 122) || this.ch === 8730) {
+                    while ((this.ch >= 97 && this.ch <= 122) || this.ch === 8730) this.nextChar();
+                    const func = this.str.substring(startPos, this.pos);
+                    x = this.parseFactor();
+                    
+                    const trigX = isDegreeMode ? x * Math.PI / 180 : x;
+
+                    if (func === 'sqrt' || func === '√') x = Math.sqrt(x);
+                    else if (func === 'cbrt') x = Math.cbrt(x);
+                    else if (func === 'sin') x = Math.sin(trigX);
+                    else if (func === 'cos') x = Math.cos(trigX);
+                    else if (func === 'tan') x = Math.tan(trigX);
+                    else if (func === 'asin') x = isDegreeMode ? Math.asin(x) * 180 / Math.PI : Math.asin(x);
+                    else if (func === 'acos') x = isDegreeMode ? Math.acos(x) * 180 / Math.PI : Math.acos(x);
+                    else if (func === 'atan') x = isDegreeMode ? Math.atan(x) * 180 / Math.PI : Math.atan(x);
+                    else if (func === 'sinh') x = Math.sinh(x);
+                    else if (func === 'cosh') x = Math.cosh(x);
+                    else if (func === 'tanh') x = Math.tanh(x);
+                    else if (func === 'log') x = Math.log10(x);
+                    else if (func === 'ln') x = Math.log(x);
+                    else if (func === 'abs') x = Math.abs(x);
+                    else throw new Error('Unknown function: ' + func);
+                } else {
+                    throw new Error('Unexpected: ' + String.fromCharCode(this.ch));
+                }
+
+                if (this.eat('^'.charCodeAt(0))) x = Math.pow(x, this.parseFactor());
+                if (this.eat('!'.charCodeAt(0))) x = this.factorial(x);
+
                 return x;
-            }            factorial(n){
-                if(n<0||n%1!==0)return NaN;
-                let fact=1;
-                for(let i=2;i<=n;i++)fact*=i;
+            }
+
+            factorial(n) {
+                if (n < 0 || n % 1 !== 0) return NaN;
+                let fact = 1;
+                for (let i = 2; i <= n; i++) fact *= i;
                 return fact;
             }
         }
-        function evaluateMath(expression){return new MathEvaluator(expression).parse();}
-        function init(){
-            buildKeypad();
-            display.addEventListener('focus',()=>display.blur());
-            document.querySelectorAll('.key').forEach(btn=>{
-                btn.addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
+
+        function evaluateMath(expression) {
+            return new MathEvaluator(expression).parse();
+        }
+
+        // --- Initialize ---
+        function init() {            buildKeypad();
+            display.focus();
+            
+            // Prevent default touch behaviors on buttons
+            document.querySelectorAll('.key').forEach(btn => {
+                btn.addEventListener('touchstart', e => e.preventDefault(), {passive: false});
             });
         }
+
+        // Start
         init();
     </script>
 </body>
