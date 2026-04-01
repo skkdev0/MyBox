@@ -26,7 +26,7 @@
         /* Display Section */
         .display-container {
             background-color: #1E1E24;
-            padding: 40px 40px 40px 40px;
+            padding: 60px 40px 40px 40px;
             border-radius: 0 0 40px 40px;
             flex: 1.2;
             display: flex;
@@ -47,7 +47,8 @@
             color: #00BCD4;
         }
 
-        .memory-indicator {            font-size: 14px;            font-weight: bold;
+        .memory-indicator {            font-size: 14px;
+            font-weight: bold;
             color: #00E676;
             margin-left: 40px;
         }
@@ -95,8 +96,8 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-        }
-        .key-row {            display: flex;
+        }        .key-row {
+            display: flex;
             flex: 1;
             gap: 10px;
         }
@@ -123,10 +124,6 @@
         .btn-func { background-color: #202028; color: #00BCD4; }
         .btn-equals { background-color: #FF9800; color: #FFFFFF; }
         .btn-del { background-color: #383845; color: #FF5252; }
-
-        .key.inverse-active {
-            border: 2px solid #FF9800;
-        }
     </style>
 </head>
 <body>
@@ -138,17 +135,17 @@
         </div>
         <div class="history" id="history"></div>
         <div class="display-wrapper">
-            <input type="text" id="display" placeholder="0" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="none" readonly>
+            <input type="text" id="display" placeholder="0" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="none">
         </div>
     </div>
 
     <!-- Keypad Section -->
     <div class="keypad-container" id="keypad"></div>
     <script>
-        // --- State Variables ---        let isDegreeMode = true;
+        // --- State Variables ---
+        let isDegreeMode = true;
         let isInverseMode = false;
-        let memoryValue = 0;
-        let hasMemory = false;
+        let memoryValue = 0;        let hasMemory = false;
 
         // --- DOM Elements ---
         const display = document.getElementById('display');
@@ -191,12 +188,13 @@
                         btn.classList.add('btn-op');
                     } else if (['DEL','AC','MC'].includes(keyText)) {
                         btn.classList.add('btn-del');
-                    } else if (keyText === '=') {                        btn.classList.add('btn-equals');
+                    } else if (keyText === '=') {
+                        btn.classList.add('btn-equals');
                     } else {
                         btn.classList.add('btn-num');
                     }
-                    btn.addEventListener('click', () => handleKeyPress(keyText, btn));
-                    btn.addEventListener('touchstart', (e) => { e.preventDefault(); handleKeyPress(keyText, btn); }, {passive: false});
+
+                    btn.addEventListener('click', () => handleKeyPress(keyText, btn));                    btn.addEventListener('touchstart', (e) => { e.preventDefault(); handleKeyPress(keyText, btn); }, {passive: false});
                     
                     rowDiv.appendChild(btn);
                 });
@@ -239,12 +237,13 @@
                     hasMemory = false;
                     memoryIndicator.textContent = '';
                     showToast('Memory Cleared');
-                    break;                case 'MR':
+                    break;
+                case 'MR':
                     if (hasMemory) insertText(formatResult(memoryValue));
                     break;
                 case 'MS':
-                    try {                        memoryValue = evaluateMath(currentText);
-                        hasMemory = true;
+                    try {
+                        memoryValue = evaluateMath(currentText);                        hasMemory = true;
                         memoryIndicator.textContent = 'M';
                         showToast('Saved to Memory');
                     } catch(e) { showToast('Invalid Expression'); }
@@ -278,23 +277,22 @@
         function toggleInverseMode() {
             isInverseMode = !isInverseMode;
             
-            // Update INV button style
+            // Update INV button style - only color change like Java version
             if (dynamicKeys['INV']) {
                 dynamicKeys['INV'].style.color = isInverseMode ? '#FF9800' : '#00BCD4';
-                if (isInverseMode) dynamicKeys['INV'].classList.add('inverse-active');
-                else dynamicKeys['INV'].classList.remove('inverse-active');
             }
             
             // Toggle function labels
             if (dynamicKeys['sin']) dynamicKeys['sin'].textContent = isInverseMode ? 'asin' : 'sin';
-            if (dynamicKeys['cos']) dynamicKeys['cos'].textContent = isInverseMode ? 'acos' : 'cos';            if (dynamicKeys['tan']) dynamicKeys['tan'].textContent = isInverseMode ? 'atan' : 'tan';
+            if (dynamicKeys['cos']) dynamicKeys['cos'].textContent = isInverseMode ? 'acos' : 'cos';
+            if (dynamicKeys['tan']) dynamicKeys['tan'].textContent = isInverseMode ? 'atan' : 'tan';
             if (dynamicKeys['log']) dynamicKeys['log'].textContent = isInverseMode ? '10^x' : 'log';
             if (dynamicKeys['ln']) dynamicKeys['ln'].textContent = isInverseMode ? 'e^x' : 'ln';
             if (dynamicKeys['^']) dynamicKeys['^'].textContent = isInverseMode ? 'x²' : '^';
             if (dynamicKeys['√']) dynamicKeys['√'].textContent = isInverseMode ? '∛' : '√';
         }
-        function calculateResult(expression) {
-            if (!expression.trim()) return;
+
+        function calculateResult(expression) {            if (!expression.trim()) return;
             try {
                 const result = evaluateMath(expression);
                 history.textContent = expression + ' =';
@@ -314,7 +312,6 @@
         }
 
         function showToast(msg) {
-            // Simple toast implementation
             const toast = document.createElement('div');
             toast.textContent = msg;
             toast.style.cssText = `
@@ -335,15 +332,16 @@
                     .replace(/π/g, '(3.141592653589793)')
                     .replace(/(?<![a-zA-Z])e(?![a-zA-Z])/g, '(2.718281828459045)');
                 this.pos = -1;
-                this.ch = -1;            }
+                this.ch = -1;
+            }
 
             nextChar() {
                 this.ch = (++this.pos < this.str.length) ? this.str.charCodeAt(this.pos) : -1;
             }
 
-            eat(charToEat) {                while (this.ch === 32) this.nextChar(); // skip spaces
-                if (this.ch === charToEat) {
-                    this.nextChar();
+            eat(charToEat) {
+                while (this.ch === 32) this.nextChar();
+                if (this.ch === charToEat) {                    this.nextChar();
                     return true;
                 }
                 return false;
@@ -383,15 +381,16 @@
                 const startPos = this.pos;
 
                 if (this.eat('('.charCodeAt(0))) {
-                    x = this.parseExpression();                    this.eat(')'.charCodeAt(0));
+                    x = this.parseExpression();
+                    this.eat(')'.charCodeAt(0));
                 } else if ((this.ch >= 48 && this.ch <= 57) || this.ch === 46) {
                     while ((this.ch >= 48 && this.ch <= 57) || this.ch === 46) this.nextChar();
                     x = parseFloat(this.str.substring(startPos, this.pos));
                 } else if ((this.ch >= 97 && this.ch <= 122) || this.ch === 8730) {
                     while ((this.ch >= 97 && this.ch <= 122) || this.ch === 8730) this.nextChar();
                     const func = this.str.substring(startPos, this.pos);
-                    x = this.parseFactor();                    
-                    const trigX = isDegreeMode ? x * Math.PI / 180 : x;
+                    x = this.parseFactor();
+                                        const trigX = isDegreeMode ? x * Math.PI / 180 : x;
 
                     if (func === 'sqrt' || func === '√') x = Math.sqrt(x);
                     else if (func === 'cbrt') x = Math.cbrt(x);
@@ -421,7 +420,7 @@
             factorial(n) {
                 if (n < 0 || n % 1 !== 0) return NaN;
                 let fact = 1;
-                for (let i = 2; i <= n; i++) fact *= i;
+                for (let i = 1; i <= n; i++) fact *= i;
                 return fact;
             }
         }
@@ -431,14 +430,19 @@
         }
 
         // --- Initialize ---
-        function init() {            buildKeypad();
-            display.focus();
+        function init() {
+            buildKeypad();
+            
+            // Prevent keyboard on focus for mobile
+            display.addEventListener('focus', function() {
+                this.blur();
+            });
             
             // Prevent default touch behaviors on buttons
-            document.querySelectorAll('.key').forEach(btn => {
-                btn.addEventListener('touchstart', e => e.preventDefault(), {passive: false});
+            document.querySelectorAll('.key').forEach(btn => {                btn.addEventListener('touchstart', e => e.preventDefault(), {passive: false});
             });
         }
+
         // Start
         init();
     </script>
