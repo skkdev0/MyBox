@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Profile Builder</title>
-    <!-- Google Fonts for Premium Look -->
+    <title>Dynamic Profile</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         
         body {
-            /* Modern Animated Gradient Background */
             background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
             color: #1a1a2e;
             line-height: 1.6;
@@ -25,7 +23,6 @@
         .container {
             width: 100%;
             max-width: 450px;
-            /* Glassmorphism Effect */
             background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
@@ -38,7 +35,6 @@
             align-items: center;
         }
         
-        /* Avatar */
         .avatar {
             width: 130px;
             height: 130px;
@@ -60,7 +56,6 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
         
-        /* Name Row */
         .name-row {
             display: flex;
             align-items: center;
@@ -78,7 +73,6 @@
             height: 22px;
         }
         
-        /* Subtitle */
         .subtitle {
             font-size: 14px;
             font-weight: 500;
@@ -90,7 +84,6 @@
             border-radius: 20px;
         }
         
-        /* Social Cards (Glassmorphism) */
         .card {
             width: 100%;
             padding: 15px 20px;
@@ -129,7 +122,6 @@
         .card.youtube .card-title { color: #FF0000; }
         .card.telegram .card-title { color: #0088CC; }
         
-        /* About Box */
         .about-box {
             width: 100%;
             padding: 25px;
@@ -151,7 +143,6 @@
             color: #4a4a6a;
         }
         
-        /* Footer */
         .footer {
             font-size: 12px;
             color: #666;
@@ -181,7 +172,7 @@
             </div>
         </div>
         
-        <!-- Role/Subtitle -->
+        <!-- Subtitle -->
         <div class="subtitle" id="subtitle">AI Specialist • Android Dev</div>
         
         <!-- YouTube Card -->
@@ -201,9 +192,9 @@
         </div>        
         
         <!-- About Section -->
-        <div class="about-box">
+        <div class="about-box" id="about-box">
             <div class="about-title">About Me</div>
-            <p class="about-text" id="about-text">Passionately building AI solutions and high-performance Android games. Dedicated to creating clean code and intuitive user experiences.</p>
+            <p class="about-text" id="about-text">Passionately building AI solutions and high-performance Android games.</p>
         </div>
         
         <!-- Footer -->
@@ -214,46 +205,64 @@
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
             
-            // 1. GET ALL PARAMETERS (URL se data nikalna)
-            const nameParam = params.get('name');
-            const roleParam = params.get('role');
-            const aboutParam = params.get('about');
-            const ytParam = params.get('yt');
-            const tgParam = params.get('tg');
-            const imgParam = params.get('img'); // Profile Picture URL
+            // 1. Agar Link mein kuch Parameter aaya hai
+            if (window.location.search.length > 1) {
+                
+                // NAME Set Karna
+                const nameParam = params.get('name');
+                if (nameParam) {
+                    const finalName = decodeURIComponent(nameParam);
+                    document.title = finalName + "'s Profile";
+                    document.getElementById('person-name').textContent = finalName;
+                    document.getElementById('footer-name').textContent = finalName.split(' ')[0];
+                    document.getElementById('avatar-letter').textContent = finalName.charAt(0).toUpperCase();
+                }
 
-            // 2. DEFAULT VALUES (Agar URL me kuch na ho)
-            let finalName = "Rachit Pandey";
-            let finalRole = "AI Specialist • Android Dev";
-            let finalAbout = "Passionately building AI solutions and high-performance Android games. Dedicated to creating clean code and intuitive user experiences.";
-            let finalYtUrl = "https://youtube.com/@rachit-yt";
-            let finalTgUrl = "https://t.me/coder359";
+                // ROLE - Agar nahi hai toh HIDE kar do
+                const roleParam = params.get('role');
+                if (roleParam) {
+                    document.getElementById('subtitle').textContent = decodeURIComponent(roleParam);
+                } else {
+                    document.getElementById('subtitle').style.display = 'none'; // 🔥 HIDDEN
+                }
 
-            // 3. OVERWRITE WITH URL DATA (Agar user ne link me data diya hai)
-            if (nameParam) finalName = decodeURIComponent(nameParam);
-            if (roleParam) finalRole = decodeURIComponent(roleParam);
-            if (aboutParam) finalAbout = decodeURIComponent(aboutParam);
-            if (ytParam) finalYtUrl = decodeURIComponent(ytParam);
-            if (tgParam) finalTgUrl = decodeURIComponent(tgParam);
+                // ABOUT - Agar nahi hai toh poora box HIDE kar do
+                const aboutParam = params.get('about');
+                if (aboutParam) {
+                    document.getElementById('about-text').textContent = decodeURIComponent(aboutParam);
+                } else {
+                    document.getElementById('about-box').style.display = 'none'; // 🔥 HIDDEN
+                }
 
-            // 4. UPDATE UI
-            document.title = finalName + "'s Profile";
-            document.getElementById('person-name').textContent = finalName;
-            document.getElementById('subtitle').textContent = finalRole;
-            document.getElementById('about-text').textContent = finalAbout;
-            document.getElementById('footer-name').textContent = finalName.split(' ')[0];
+                // YOUTUBE - Agar link nahi diya, toh card HIDE kar do
+                const ytParam = params.get('yt');
+                if (ytParam) {
+                    document.getElementById('yt-card').onclick = () => window.open(decodeURIComponent(ytParam), '_blank');
+                } else {
+                    document.getElementById('yt-card').style.display = 'none'; // 🔥 HIDDEN
+                }
 
-            // Update Avatar (Letter or Image)
-            if (imgParam) {
-                document.getElementById('avatar-bg').style.backgroundImage = `url('${decodeURIComponent(imgParam)}')`;
-                document.getElementById('avatar-letter').style.display = 'none'; // Letter hide kardo
+                // TELEGRAM - Agar link nahi diya, toh card HIDE kar do
+                const tgParam = params.get('tg');
+                if (tgParam) {
+                    document.getElementById('tg-card').onclick = () => window.open(decodeURIComponent(tgParam), '_blank');
+                } else {
+                    document.getElementById('tg-card').style.display = 'none'; // 🔥 HIDDEN
+                }
+
+                // IMAGE AVATAR (Photo)
+                const imgParam = params.get('img');
+                if (imgParam) {
+                    document.getElementById('avatar-bg').style.backgroundImage = `url('${decodeURIComponent(imgParam)}')`;
+                    document.getElementById('avatar-letter').style.display = 'none';
+                }
+
             } else {
-                document.getElementById('avatar-letter').textContent = finalName.charAt(0).toUpperCase();
+                // 2. Agar koi direct file open kare (Without link builder)
+                // Toh default Rachit Profile open hogi
+                document.getElementById('yt-card').onclick = () => window.open('https://youtube.com/@rachit-yt', '_blank');
+                document.getElementById('tg-card').onclick = () => window.open('https://t.me/coder359', '_blank');
             }
-
-            // 5. UPDATE LINKS (Click karne pe kahan jayega)
-            document.getElementById('yt-card').onclick = () => window.open(finalYtUrl, '_blank');
-            document.getElementById('tg-card').onclick = () => window.open(finalTgUrl, '_blank');
         });
     </script>
 </body>
