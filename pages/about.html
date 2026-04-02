@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Profile</title>
+    <title>Premium Profile</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         
         body {
-            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-            color: #1a1a2e;
+            /* Premium Dark Animated Background */
+            background: #0f0c29;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
             line-height: 1.6;
             min-height: 100vh;
             display: flex;
@@ -22,38 +24,44 @@
 
         .container {
             width: 100%;
-            max-width: 450px;
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            max-width: 420px;
+            /* Dark Glassmorphism */
+            background: rgba(25, 25, 35, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 40px 30px;
-            border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-radius: 35px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .avatar {
-            width: 130px;
-            height: 130px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #42A5F5, #5C6BC0);
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 5px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-            margin-bottom: 15px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 25px rgba(79, 172, 254, 0.5);
+            margin-bottom: 20px;
             background-size: cover;
             background-position: center;
         }
         .avatar-letter {
-            font-size: 60px;
+            font-size: 50px;
             font-weight: 700;
             color: #fff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
         
         .name-row {
@@ -63,94 +71,94 @@
             margin-bottom: 5px;
         }
         .name {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
-            color: #1a1a2e;
+            color: #fff;
             text-align: center;
+            letter-spacing: 0.5px;
         }
-        .verified svg {
-            width: 22px;
-            height: 22px;
-        }
+        .verified svg { width: 20px; height: 20px; }
         
         .subtitle {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
-            color: #4a4a6a;
+            color: #a0a0b5;
             text-align: center;
             margin-bottom: 30px;
-            background: rgba(255,255,255,0.5);
-            padding: 5px 15px;
+            background: rgba(255,255,255,0.05);
+            padding: 6px 18px;
             border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
         
         .card {
             width: 100%;
-            padding: 15px 20px;
+            padding: 16px 20px;
             border-radius: 20px;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 15px;
             cursor: pointer;
-            background: rgba(255, 255, 255, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 25px rgba(0,0,0,0.1);
-            background: rgba(255, 255, 255, 0.9);
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
+        .card.youtube:hover { box-shadow: 0 10px 20px rgba(255, 0, 0, 0.2); }
+        .card.telegram:hover { box-shadow: 0 10px 20px rgba(0, 136, 204, 0.2); }
+
         .card-icon {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         
         .card-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
-            color: #1a1a2e;
+            color: #fff;
         }
-
-        .card.youtube .card-title { color: #FF0000; }
-        .card.telegram .card-title { color: #0088CC; }
         
         .about-box {
             width: 100%;
             padding: 25px;
             margin-top: 15px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
             text-align: center;
         }
         .about-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #4facfe;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .about-text {
-            font-size: 14px;
-            color: #4a4a6a;
+            font-size: 13px;
+            color: #b0b0c0;
         }
         
         .footer {
-            font-size: 12px;
+            font-size: 11px;
             color: #666;
             text-align: center;
             margin-top: 30px;
-            font-weight: 500;
         }
-        .footer span { font-weight: 700; color: #1a1a2e; }
+        .footer span { color: #888; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -166,102 +174,91 @@
             <span class="name" id="person-name">Rachit Pandey</span>
             <div class="verified">
                 <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="256" cy="256" r="256" fill="#29B6F6"/>
-                    <path d="M140 260l72 72 160-160" fill="none" stroke="#fff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="256" cy="256" r="256" fill="#4facfe"/>
+                    <path d="M140 260l72 72 160-160" fill="none" stroke="#fff" stroke-width="45" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
         </div>
         
         <!-- Subtitle -->
-        <div class="subtitle" id="subtitle">AI Specialist • Android Dev</div>
+        <div class="subtitle" id="subtitle">Developer & Creator</div>
         
         <!-- YouTube Card -->
         <div class="card youtube" id="yt-card">
             <div class="card-icon">
-                <svg viewBox="0 0 24 24" fill="red"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#ff4b4b"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
             </div>
-            <span class="card-title">Subscribe on YouTube</span>
+            <span class="card-title">Watch on YouTube</span>
         </div>
         
         <!-- Telegram Card -->
         <div class="card telegram" id="tg-card">
             <div class="card-icon">
-                <svg viewBox="0 0 24 24" fill="#0088CC"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.882-.666 3.453-1.504 5.76-2.498 6.92-2.983 3.295-1.378 3.98-1.616 4.426-1.623z"/></svg>
+                <svg viewBox="0 0 24 24" fill="#00a8ff"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.882-.666 3.453-1.504 5.76-2.498 6.92-2.983 3.295-1.378 3.98-1.616 4.426-1.623z"/></svg>
             </div>
-            <span class="card-title">Join Telegram Group</span>
+            <span class="card-title">Join Telegram</span>
         </div>        
         
         <!-- About Section -->
         <div class="about-box" id="about-box">
             <div class="about-title">About Me</div>
-            <p class="about-text" id="about-text">Passionately building AI solutions and high-performance Android games.</p>
+            <p class="about-text" id="about-text">Building awesome tools and writing clean code.</p>
         </div>
         
         <!-- Footer -->
-        <p class="footer">Built with URL Builder by <span id="footer-name">Rachit</span></p>
+        <p class="footer">Created by <span id="footer-name">Rachit</span></p>
     </div>
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
             
-            // 1. Agar Link mein kuch Parameter aaya hai
             if (window.location.search.length > 1) {
-                
-                // NAME Set Karna
+                // NAME
                 const nameParam = params.get('name');
                 if (nameParam) {
                     const finalName = decodeURIComponent(nameParam);
-                    document.title = finalName + "'s Profile";
+                    document.title = finalName;
                     document.getElementById('person-name').textContent = finalName;
                     document.getElementById('footer-name').textContent = finalName.split(' ')[0];
                     document.getElementById('avatar-letter').textContent = finalName.charAt(0).toUpperCase();
                 }
 
-                // ROLE - Agar nahi hai toh HIDE kar do
+                // ROLE
                 const roleParam = params.get('role');
-                if (roleParam) {
-                    document.getElementById('subtitle').textContent = decodeURIComponent(roleParam);
-                } else {
-                    document.getElementById('subtitle').style.display = 'none'; // 🔥 HIDDEN
-                }
+                if (roleParam) document.getElementById('subtitle').textContent = decodeURIComponent(roleParam);
+                else document.getElementById('subtitle').style.display = 'none';
 
-                // ABOUT - Agar nahi hai toh poora box HIDE kar do
+                // ABOUT
                 const aboutParam = params.get('about');
-                if (aboutParam) {
-                    document.getElementById('about-text').textContent = decodeURIComponent(aboutParam);
-                } else {
-                    document.getElementById('about-box').style.display = 'none'; // 🔥 HIDDEN
-                }
+                if (aboutParam) document.getElementById('about-text').textContent = decodeURIComponent(aboutParam);
+                else document.getElementById('about-box').style.display = 'none';
 
-                // YOUTUBE - Agar link nahi diya, toh card HIDE kar do
+                // YOUTUBE
                 const ytParam = params.get('yt');
-                if (ytParam) {
-                    document.getElementById('yt-card').onclick = () => window.open(decodeURIComponent(ytParam), '_blank');
-                } else {
-                    document.getElementById('yt-card').style.display = 'none'; // 🔥 HIDDEN
-                }
+                if (ytParam) document.getElementById('yt-card').onclick = () => window.open(decodeURIComponent(ytParam), '_blank');
+                else document.getElementById('yt-card').style.display = 'none';
 
-                // TELEGRAM - Agar link nahi diya, toh card HIDE kar do
+                // TELEGRAM
                 const tgParam = params.get('tg');
-                if (tgParam) {
-                    document.getElementById('tg-card').onclick = () => window.open(decodeURIComponent(tgParam), '_blank');
-                } else {
-                    document.getElementById('tg-card').style.display = 'none'; // 🔥 HIDDEN
-                }
+                if (tgParam) document.getElementById('tg-card').onclick = () => window.open(decodeURIComponent(tgParam), '_blank');
+                else document.getElementById('tg-card').style.display = 'none';
 
-                // IMAGE AVATAR (Photo)
+                // IMAGE
                 const imgParam = params.get('img');
                 if (imgParam) {
-                    document.getElementById('avatar-bg').style.backgroundImage = `url('${decodeURIComponent(imgParam)}')`;
-                    document.getElementById('avatar-letter').style.display = 'none';
+                    const decodedImgUrl = decodeURIComponent(imgParam);
+                    const tempImg = new Image();
+                    tempImg.onload = () => {
+                        document.getElementById('avatar-bg').style.backgroundImage = `url('${decodedImgUrl}')`;
+                        document.getElementById('avatar-letter').style.display = 'none';
+                    };
+                    tempImg.src = decodedImgUrl;
                 }
-
             } else {
-                // 2. Agar koi direct file open kare (Without link builder)
-                // Toh default Rachit Profile open hogi
-                document.getElementById('yt-card').onclick = () => window.open('https://youtube.com/@rachit-yt', '_blank');
-                document.getElementById('tg-card').onclick = () => window.open('https://t.me/coder359', '_blank');
+                // Default Profile fallback
+                document.getElementById('yt-card').onclick = () => window.open('https://youtube.com', '_blank');
+                document.getElementById('tg-card').onclick = () => window.open('https://t.me', '_blank');
             }
         });
     </script>
