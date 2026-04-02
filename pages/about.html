@@ -3,266 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Profile</title>
+    <title>Pro Profile Builder</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         
         body {
-            /* Premium Dark Animated Background */
-            background: #0f0c29;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            color: #fff;
-            line-height: 1.6;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 30px 20px;
+            -webkit-user-select: none; user-select: none;
         }
 
-        .container {
+        /* Split Layout */
+        .builder-wrapper {
+            display: flex;
+            gap: 30px;
+            max-width: 1100px;
             width: 100%;
-            max-width: 420px;
-            /* Dark Glassmorphism */
-            background: rgba(25, 25, 35, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 40px 30px;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        /* ================== LEFT: FORM SECTION ================== */
+        .form-container {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            animation: slideInLeft 0.6s ease;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        h1 { text-align: center; color: #1e3c72; font-size: 24px; margin-bottom: 5px; }
+        p.subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 25px; }
+
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 13px; font-weight: 600; color: #4a4a6a; margin-bottom: 5px; }
+        
+        input, textarea { 
+            width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 10px; 
+            font-size: 14px; outline: none; transition: border 0.3s; background: #f9f9f9; 
+            -webkit-user-select: auto; user-select: auto;
+        }
+        input:focus, textarea:focus { border-color: #2a5298; background: #fff; box-shadow: 0 0 8px rgba(42, 82, 152, 0.1); }
+        textarea { resize: vertical; min-height: 70px; }
+
+        .btn-generate { 
+            width: 100%; padding: 15px; background: linear-gradient(135deg, #1e3c72, #2a5298); 
+            color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; 
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; margin-top: 10px; 
+        }
+        .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(42, 82, 152, 0.3); }
+
+        .output-box { margin-top: 25px; display: none; padding-top: 20px; border-top: 2px dashed #ddd; }
+        .result-url { 
+            width: 100%; padding: 12px; background: #e8f5e9; border: 1px solid #c8e6c9; 
+            color: #2e7d32; border-radius: 10px; font-size: 13px; font-weight: bold; 
+            text-align: center; margin-bottom: 15px; outline: none; -webkit-user-select: auto; user-select: auto;
+        }
+
+        .action-buttons { display: flex; gap: 10px; }
+        .btn-action { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 14px; color: white;}
+        .btn-copy { background: #1e3c72; }
+        .btn-copy:hover { background: #152b52; }
+        .btn-test { background: #4caf50; }
+        .btn-test:hover { background: #43a047; }
+
+
+        /* ================== RIGHT: LIVE PREVIEW ================== */
+        .preview-container {
+            width: 100%;
+            max-width: 380px;
+            background: #0f0c29;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             border-radius: 35px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            padding: 40px 30px;
+            color: #fff;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
-            animation: fadeIn 0.8s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #00f2fe, #4facfe);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 4px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 25px rgba(79, 172, 254, 0.5);
-            margin-bottom: 20px;
-            background-size: cover;
-            background-position: center;
-        }
-        .avatar-letter {
-            font-size: 50px;
-            font-weight: 700;
-            color: #fff;
-        }
-        
-        .name-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 5px;
-        }
-        .name {
-            font-size: 26px;
-            font-weight: 700;
-            color: #fff;
-            text-align: center;
-            letter-spacing: 0.5px;
-        }
-        .verified svg { width: 20px; height: 20px; }
-        
-        .subtitle {
-            font-size: 13px;
-            font-weight: 500;
-            color: #a0a0b5;
-            text-align: center;
-            margin-bottom: 30px;
-            background: rgba(255,255,255,0.05);
-            padding: 6px 18px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        .card {
-            width: 100%;
-            padding: 16px 20px;
-            border-radius: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
-        }
-        
-        .card:hover {
-            transform: scale(1.02);
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
+            animation: slideInRight 0.6s ease;
+            border: 8px solid #222; /* Looks like a phone frame */
         }
 
-        .card.youtube:hover { box-shadow: 0 10px 20px rgba(255, 0, 0, 0.2); }
-        .card.telegram:hover { box-shadow: 0 10px 20px rgba(0, 136, 204, 0.2); }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
 
-        .card-icon {
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .preview-badge {
+            position: absolute; top: -15px; background: #ff4b4b; color: #fff;
+            padding: 5px 15px; border-radius: 20px; font-size: 11px; font-weight: 700;
+            letter-spacing: 1px; box-shadow: 0 5px 10px rgba(255, 75, 75, 0.4);
         }
+
+        /* Profile Card Inner Styles */
+        .av-bg {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            display: flex; align-items: center; justify-content: center;
+            border: 3px solid rgba(255, 255, 255, 0.2); box-shadow: 0 0 20px rgba(79, 172, 254, 0.5);
+            margin-bottom: 15px; background-size: cover; background-position: center;
+        }
+        .av-letter { font-size: 40px; font-weight: 700; color: #fff; }
+        .pv-name { font-size: 22px; font-weight: 700; text-align: center; }
+        .pv-role { font-size: 12px; font-weight: 500; color: #a0a0b5; margin-bottom: 25px; background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 20px; }
         
-        .card-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #fff;
+        .pv-btn {
+            width: 100%; padding: 14px 20px; border-radius: 15px; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 15px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1); font-size: 14px; font-weight: 600;
         }
+        .pv-btn svg { width: 25px; height: 25px; }
         
-        .about-box {
-            width: 100%;
-            padding: 25px;
-            margin-top: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            text-align: center;
+        .pv-about {
+            width: 100%; padding: 20px; margin-top: 10px; background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.05); text-align: center;
         }
-        .about-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #4facfe;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .pv-about-title { font-size: 12px; color: #4facfe; margin-bottom: 5px; text-transform: uppercase; font-weight: 600;}
+        .pv-about-text { font-size: 12px; color: #b0b0c0; }
+
+        @media (max-width: 850px) {
+            .builder-wrapper { flex-direction: column; align-items: center; }
         }
-        .about-text {
-            font-size: 13px;
-            color: #b0b0c0;
-        }
-        
-        .footer {
-            font-size: 11px;
-            color: #666;
-            text-align: center;
-            margin-top: 30px;
-        }
-        .footer span { color: #888; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- Avatar -->
-        <div class="avatar" id="avatar-bg">
-            <span class="avatar-letter" id="avatar-letter">R</span>
-        </div>
+    <div class="builder-wrapper">
         
-        <!-- Name -->
-        <div class="name-row">
-            <span class="name" id="person-name">Rachit Pandey</span>
-            <div class="verified">
-                <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="256" cy="256" r="256" fill="#4facfe"/>
-                    <path d="M140 260l72 72 160-160" fill="none" stroke="#fff" stroke-width="45" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+        <!-- FORM SECTION -->
+        <div class="form-container">
+            <h1>🚀 Pro Link Maker</h1>
+            <p class="subtitle">Generate your smart Profile URL</p>
+
+            <div class="input-group">
+                <label>Name</label>
+                <input type="text" id="name" placeholder="Rachit Pandey" oninput="updatePreview()">
+            </div>
+            <div class="input-group">
+                <label>Role / Subtitle</label>
+                <input type="text" id="role" placeholder="Developer & Creator" oninput="updatePreview()">
+            </div>
+            <div class="input-group">
+                <label>Profile Image (Direct URL)</label>
+                <input type="url" id="img" placeholder="https://link-to-photo.jpg" oninput="updatePreview()">
+            </div>
+            <div class="input-group">
+                <label>YouTube Link</label>
+                <input type="url" id="yt" placeholder="https://youtube.com/..." oninput="updatePreview()">
+            </div>
+            <div class="input-group">
+                <label>Telegram Link</label>
+                <input type="url" id="tg" placeholder="https://t.me/..." oninput="updatePreview()">
+            </div>
+            <div class="input-group">
+                <label>About Me</label>
+                <textarea id="about" placeholder="Write a short bio..." oninput="updatePreview()"></textarea>
+            </div>
+
+            <button class="btn-generate" id="generateBtn" onclick="generateLink()">✨ Generate Link</button>
+
+            <!-- Output Box -->
+            <div class="output-box" id="outputBox">
+                <label>🎉 Your Link is Ready:</label>
+                <input type="text" class="result-url" id="finalUrl" readonly>
+                <div class="action-buttons">
+                    <button class="btn-action btn-copy" id="copyBtn" onclick="copyToClipboard()">📋 Copy</button>
+                    <button class="btn-action btn-test" onclick="testLink()">🌐 Open</button>
+                </div>
             </div>
         </div>
-        
-        <!-- Subtitle -->
-        <div class="subtitle" id="subtitle">Developer & Creator</div>
-        
-        <!-- YouTube Card -->
-        <div class="card youtube" id="yt-card">
-            <div class="card-icon">
+
+        <!-- LIVE PREVIEW SECTION -->
+        <div class="preview-container">
+            <div class="preview-badge">LIVE PREVIEW</div>
+            
+            <div class="av-bg" id="pv-av-bg">
+                <span class="av-letter" id="pv-av-letter">R</span>
+            </div>
+            <div class="pv-name" id="pv-name">Rachit Pandey</div>
+            <div class="pv-role" id="pv-role">Developer & Creator</div>
+            
+            <div class="pv-btn" id="pv-yt-btn" style="display:none;">
                 <svg viewBox="0 0 24 24" fill="#ff4b4b"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                <span>Watch on YouTube</span>
             </div>
-            <span class="card-title">Watch on YouTube</span>
-        </div>
-        
-        <!-- Telegram Card -->
-        <div class="card telegram" id="tg-card">
-            <div class="card-icon">
+            
+            <div class="pv-btn" id="pv-tg-btn" style="display:none;">
                 <svg viewBox="0 0 24 24" fill="#00a8ff"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.882-.666 3.453-1.504 5.76-2.498 6.92-2.983 3.295-1.378 3.98-1.616 4.426-1.623z"/></svg>
+                <span>Join Telegram</span>
             </div>
-            <span class="card-title">Join Telegram</span>
-        </div>        
-        
-        <!-- About Section -->
-        <div class="about-box" id="about-box">
-            <div class="about-title">About Me</div>
-            <p class="about-text" id="about-text">Building awesome tools and writing clean code.</p>
+
+            <div class="pv-about" id="pv-about-box" style="display:none;">
+                <div class="pv-about-title">About Me</div>
+                <div class="pv-about-text" id="pv-about-text"></div>
+            </div>
         </div>
-        
-        <!-- Footer -->
-        <p class="footer">Created by <span id="footer-name">Rachit</span></p>
+
     </div>
 
     <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
-            
-            if (window.location.search.length > 1) {
-                // NAME
-                const nameParam = params.get('name');
-                if (nameParam) {
-                    const finalName = decodeURIComponent(nameParam);
-                    document.title = finalName;
-                    document.getElementById('person-name').textContent = finalName;
-                    document.getElementById('footer-name').textContent = finalName.split(' ')[0];
-                    document.getElementById('avatar-letter').textContent = finalName.charAt(0).toUpperCase();
-                }
+        // LIVE PREVIEW FUNCTION
+        function updatePreview() {
+            const name = document.getElementById('name').value.trim() || "Your Name";
+            const role = document.getElementById('role').value.trim();
+            const img = document.getElementById('img').value.trim();
+            const yt = document.getElementById('yt').value.trim();
+            const tg = document.getElementById('tg').value.trim();
+            const about = document.getElementById('about').value.trim();
 
-                // ROLE
-                const roleParam = params.get('role');
-                if (roleParam) document.getElementById('subtitle').textContent = decodeURIComponent(roleParam);
-                else document.getElementById('subtitle').style.display = 'none';
+            // Name & Avatar Letter
+            document.getElementById('pv-name').innerText = name;
+            document.getElementById('pv-av-letter').innerText = name.charAt(0).toUpperCase();
 
-                // ABOUT
-                const aboutParam = params.get('about');
-                if (aboutParam) document.getElementById('about-text').textContent = decodeURIComponent(aboutParam);
-                else document.getElementById('about-box').style.display = 'none';
+            // Role
+            const roleEl = document.getElementById('pv-role');
+            if(role) { roleEl.style.display = 'block'; roleEl.innerText = role; } 
+            else { roleEl.style.display = 'none'; }
 
-                // YOUTUBE
-                const ytParam = params.get('yt');
-                if (ytParam) document.getElementById('yt-card').onclick = () => window.open(decodeURIComponent(ytParam), '_blank');
-                else document.getElementById('yt-card').style.display = 'none';
+            // About
+            const aboutBox = document.getElementById('pv-about-box');
+            if(about) { aboutBox.style.display = 'block'; document.getElementById('pv-about-text').innerText = about; } 
+            else { aboutBox.style.display = 'none'; }
 
-                // TELEGRAM
-                const tgParam = params.get('tg');
-                if (tgParam) document.getElementById('tg-card').onclick = () => window.open(decodeURIComponent(tgParam), '_blank');
-                else document.getElementById('tg-card').style.display = 'none';
+            // Buttons
+            document.getElementById('pv-yt-btn').style.display = yt ? 'flex' : 'none';
+            document.getElementById('pv-tg-btn').style.display = tg ? 'flex' : 'none';
 
-                // IMAGE
-                const imgParam = params.get('img');
-                if (imgParam) {
-                    const decodedImgUrl = decodeURIComponent(imgParam);
-                    const tempImg = new Image();
-                    tempImg.onload = () => {
-                        document.getElementById('avatar-bg').style.backgroundImage = `url('${decodedImgUrl}')`;
-                        document.getElementById('avatar-letter').style.display = 'none';
-                    };
-                    tempImg.src = decodedImgUrl;
-                }
+            // Image
+            const avBg = document.getElementById('pv-av-bg');
+            const avLet = document.getElementById('pv-av-letter');
+            if(img) {
+                avBg.style.backgroundImage = `url('${img}')`;
+                avLet.style.display = 'none';
             } else {
-                // Default Profile fallback
-                document.getElementById('yt-card').onclick = () => window.open('https://youtube.com', '_blank');
-                document.getElementById('tg-card').onclick = () => window.open('https://t.me', '_blank');
+                avBg.style.backgroundImage = 'linear-gradient(135deg, #00f2fe, #4facfe)';
+                avLet.style.display = 'block';
             }
-        });
-    
-            // Tumhara Base URL
+        }
+
+        // Initialize preview on page load
+        updatePreview();
+
+
+        // LINK GENERATION FUNCTION
+        function generateLink() {
+            const btn = document.getElementById('generateBtn');
+            btn.innerText = "⏳ Generating Link...";
+            btn.disabled = true;
+
             const baseUrl = "https://skkdev0.github.io/MyBox/pages/about.html";
             const params = new URLSearchParams();
 
@@ -288,32 +293,14 @@
             }
             finalMagicUrl = finalMagicUrl.replace(/\+/g, '%20');
 
-            // --- API SE URL CHHOTA KARNE KA MAGIC ---
-            try {
-                // TinyURL ki API use kar rahe hain (Free, No API Key needed)
-                const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(finalMagicUrl)}`);
-                
-                if (response.ok) {
-                    const shortUrl = await response.text();
-                    showResult(shortUrl);
-                } else {
-                    // Agar API fail hui toh normal lamba link dikha do
-                    showResult(finalMagicUrl);
-                }
-            } catch (error) {
-                // Agar internet issue aaya toh normal link dikha do
-                showResult(finalMagicUrl);
-            }
-            
-            btn.innerText = "✨ Generate Short Link";
-            btn.disabled = false;
-        }
-
-        function showResult(url) {
+            // Show output
             document.getElementById('outputBox').style.display = 'block';
-            document.getElementById('finalUrl').value = url;
+            document.getElementById('finalUrl').value = finalMagicUrl;
             document.getElementById('copyBtn').innerHTML = "📋 Copy";
             document.getElementById('copyBtn').style.background = "#1e3c72";
+            
+            btn.innerText = "✨ Generate Link";
+            btn.disabled = false;
         }
 
         function copyToClipboard() {
