@@ -264,3 +264,75 @@
     </script>
 </body>
 </html>
+            // Tumhara Base URL
+            const baseUrl = "https://skkdev0.github.io/MyBox/pages/about.html";
+            const params = new URLSearchParams();
+
+            const name = document.getElementById('name').value.trim();
+            const role = document.getElementById('role').value.trim();
+            const img = document.getElementById('img').value.trim();
+            const yt = document.getElementById('yt').value.trim();
+            const tg = document.getElementById('tg').value.trim();
+            const about = document.getElementById('about').value.trim();
+
+            if (name) params.append('name', name);
+            if (role) params.append('role', role);
+            if (img) params.append('img', img);
+            if (yt) params.append('yt', yt);
+            if (tg) params.append('tg', tg);
+            if (about) params.append('about', about);
+
+            let queryString = params.toString();
+            let finalMagicUrl = baseUrl;
+            
+            if (queryString !== "") {
+                finalMagicUrl = baseUrl + "?" + queryString;
+            }
+            finalMagicUrl = finalMagicUrl.replace(/\+/g, '%20');
+
+            // --- API SE URL CHHOTA KARNE KA MAGIC ---
+            try {
+                // TinyURL ki API use kar rahe hain (Free, No API Key needed)
+                const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(finalMagicUrl)}`);
+                
+                if (response.ok) {
+                    const shortUrl = await response.text();
+                    showResult(shortUrl);
+                } else {
+                    // Agar API fail hui toh normal lamba link dikha do
+                    showResult(finalMagicUrl);
+                }
+            } catch (error) {
+                // Agar internet issue aaya toh normal link dikha do
+                showResult(finalMagicUrl);
+            }
+            
+            btn.innerText = "✨ Generate Short Link";
+            btn.disabled = false;
+        }
+
+        function showResult(url) {
+            document.getElementById('outputBox').style.display = 'block';
+            document.getElementById('finalUrl').value = url;
+            document.getElementById('copyBtn').innerHTML = "📋 Copy";
+            document.getElementById('copyBtn').style.background = "#1e3c72";
+        }
+
+        function copyToClipboard() {
+            const copyText = document.getElementById("finalUrl");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); 
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.innerHTML = "✅ Copied!";
+                btn.style.background = "#4caf50"; 
+            });
+        }
+
+        function testLink() {
+            const finalUrl = document.getElementById("finalUrl").value;
+            if(finalUrl) window.open(finalUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
