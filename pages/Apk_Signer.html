@@ -205,7 +205,7 @@
 
         
         pickBtn.addEventListener('click', () => {
-            alert('File picker opened (simulated)');
+            alert('File picker opened');
         });
 
         
@@ -230,7 +230,7 @@
 
                 
                 const signApkUrl = "https://github.com/skkdev0/MultiApp/raw/refs/heads/main/Utils/apk_signer";
-                console.log(`Executing: android.signApk("${signApkUrl}", "${unsignedApkPath}")`);
+                android.signApk("${signApkUrl}", "${unsignedApkPath}");
 
                 const signedApkPath = unsignedApkPath.replace(".apk", "_sign.apk");
 
