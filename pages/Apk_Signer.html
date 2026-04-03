@@ -67,10 +67,11 @@ signBtn.addEventListener('click', () => {
         statusText.style.color = "#000000";
         signBtn.disabled = false;
     }, 3000);
-});
+        
     } else {
-                        //not support function
-                         }
+        statusText.textContent = "Can't support this browser.";
+    }
+    
 </script>
 </body>
 </html>
