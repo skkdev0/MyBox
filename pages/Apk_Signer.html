@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>APK Signer</title>
+<title>APK Signer Pro</title>
 <style>
 * {
     box-sizing: border-box;
@@ -26,15 +26,13 @@ body {
     user-select: none;
 }
 
-.header {display:flex;align-items:center;justify-content:center;padding:8px;background:#4285F4;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:10}
-.icon-wrapper {width:40px;height:40px;padding:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;transition:background .2s}
-.icon-wrapper:active {background:rgba(255,255,255,.2)}
-.icon-wrapper svg {width:100%;height:100%;fill:#fff}
-.title {flex:1;text-align:center;color:#fff;font-size:16px;font-weight:700;padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.content {flex:1;display:flex;flex-direction:column;align-items:center;padding:25px;width:100%}
-.card {width:100%;max-width:500px;background:#fff;border-radius:20px;box-shadow:0 8px 16px rgba(0,0,0,.1);padding:15px;display:flex;flex-direction:column}
-.input-row {display:flex;flex-direction:row;align-items:stretch;gap:15px}
-.input-wrapper {flex:1;display:flex;align-items:center;padding:8px;background:#fff;border:4px solid #4285F4;border-radius:20px}
+.header {display:flex;align-items:center;justify-content:center;padding:15px 8px;background:#4285F4;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:10}
+.title {text-align:center;color:#fff;font-size:18px;font-weight:700;letter-spacing: 0.5px;}
+
+.content {flex:1;display:flex;flex-direction:column;align-items:center;padding:25px 15px;width:100%}
+.card {width:100%;max-width:500px;background:#fff;border-radius:20px;box-shadow:0 8px 16px rgba(0,0,0,.08);padding:20px;display:flex;flex-direction:column}
+.input-row {display:flex;flex-direction:row;align-items:stretch;gap:12px}
+.input-wrapper {flex:1;display:flex;align-items:center;padding:10px 12px;background:#f9f9f9;border:2px solid #4285F4;border-radius:15px}
 
 .apk-input {
     width: 100%;
@@ -42,56 +40,106 @@ body {
     outline: none;
     background: transparent;
     font-size: 14px;
-    color: #000;
-    padding: 4px;
+    color: #333;
     /* Allow text selection only inside the input field */
     -webkit-user-select: auto;
     -moz-user-select: auto;
     -ms-user-select: auto;
     user-select: auto;
 }
+.apk-input::placeholder {color:#9e9e9e}
 
-.apk-input::placeholder {color:#757575}
-.pick-btn {min-width:56px;padding:8px;display:flex;align-items:center;justify-content:center;background:#fff;border:4px solid #4285F4;border-radius:20px;cursor:pointer}
-.sign-btn {width:100%;margin-top:15px;padding:12px;background:#4285F4;border:4px solid #4285F4;border-radius:20px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:transform .1s,opacity .2s}
+.pick-btn {min-width:50px;display:flex;align-items:center;justify-content:center;background:#e3f2fd;border:2px solid #4285F4;border-radius:15px;cursor:pointer;transition: background 0.2s}
+.pick-btn:active {background:#bbdefb}
+.pick-btn svg {width:24px;height:24px;fill:#4285F4}
+
+/* New Features Section */
+.options-title {font-size: 13px; font-weight: bold; color: #555; margin-top: 20px; margin-bottom: 10px;}
+.options-row {display: flex; flex-wrap: wrap; gap: 12px;}
+.checkbox-label {display: flex; align-items: center; gap: 6px; font-size: 13px; color: #333; cursor: pointer;}
+.checkbox-label input[type="checkbox"] {accent-color: #4285F4; width: 16px; height: 16px; cursor: pointer;}
+
+.sign-btn {width:100%;margin-top:25px;padding:14px;background:#4285F4;border:none;border-radius:15px;color:#fff;font-size:14px;font-weight:bold;cursor:pointer;text-transform:uppercase;letter-spacing:1px;box-shadow: 0 4px 10px rgba(66, 133, 244, 0.3);transition:transform .1s,opacity .2s}
 .sign-btn:active {transform:scale(.98);opacity:.9}
-.sign-btn:disabled {background:#90CAF9;border-color:#90CAF9;cursor:not-allowed}
-.status-text {padding:8px;font-size:12px;color:#000;margin-top:12px;width:100%;max-width:500px;text-align:left;word-break:break-all;min-height:20px}
-@media(max-width:400px){.input-row{flex-direction:column;gap:10px}.pick-btn{width:100%;min-width:auto}}
+.sign-btn:disabled {background:#90CAF9;box-shadow:none;cursor:not-allowed}
+
+.log-container {width:100%;max-width:500px;margin-top:20px;background:#fff;border-radius:15px;box-shadow:0 4px 12px rgba(0,0,0,.05);overflow:hidden; display:flex; flex-direction:column;}
+.log-header {display:flex; justify-content:space-between; align-items:center; background:#f1f1f1; padding:8px 15px;}
+.log-title {font-size: 12px; font-weight: bold; color: #555;}
+.clear-btn {font-size: 12px; color: #F44336; cursor: pointer; font-weight: bold;}
+.clear-btn:active {opacity: 0.7;}
+.status-text {padding:15px;font-size:12px;color:#333;text-align:left;word-break:break-all;min-height:60px; max-height:150px; overflow-y:auto; line-height: 1.5;}
+
+@media(max-width:400px){.input-row{flex-direction:column}.pick-btn{width:100%;padding:10px 0;}}
 </style>
 </head>
 <body>
 <div class="header">
-<div class="icon-wrapper" id="menu"><svg viewBox="0 0 24 24"><path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/></svg></div>
-<div class="title">APK Signer</div>
-<div class="icon-wrapper" id="telegram"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></div>
+    <div class="title">APK Signer Pro</div>
 </div>
+
 <div class="content" id="nav">
-<div class="card" id="linear">
-<div class="input-row" id="linear3">
-<div class="input-wrapper" id="linear_path">
-<input type="text" class="apk-input" id="edittext_path" placeholder="Select APK or Enter full path">
-</div>
-<div class="pick-btn" id="pick"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg></div>
+    <div class="card" id="linear">
+        <div class="input-row" id="linear3">
+            <div class="input-wrapper" id="linear_path">
+                <input type="text" class="apk-input" id="edittext_path" placeholder="Select APK or Enter full path">
+            </div>
+            <div class="pick-btn" id="pick">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            </div>
+        </div>
+        
+        <!-- Hidden File Input -->
+        <input type="file" id="file_picker" accept=".apk" style="display: none;">
+
+        <!-- Advanced Options Features -->
+        <div class="options-title">Signature Scheme</div>
+        <div class="options-row">
+            <label class="checkbox-label"><input type="checkbox" id="chk_v1" checked> V1 (Jar)</label>
+            <label class="checkbox-label"><input type="checkbox" id="chk_v2" checked> V2 (Full APK)</label>
+            <label class="checkbox-label"><input type="checkbox" id="chk_v3" checked> V3</label>
+        </div>
+        
+        <div class="options-title">Optimization</div>
+        <div class="options-row">
+            <label class="checkbox-label"><input type="checkbox" id="chk_zipalign" checked> Auto Zipalign</label>
+        </div>
+
+        <button class="sign-btn" id="sign">Sign APK</button>
+    </div>
+
+    <!-- Enhanced Log Area -->
+    <div class="log-container">
+        <div class="log-header">
+            <span class="log-title">Execution Log</span>
+            <span class="clear-btn" id="clear_log">CLEAR</span>
+        </div>
+        <div class="status-text" id="textview1">Ready to sign...</div>
+    </div>
 </div>
 
-<!-- Hidden File Input for picking APK -->
-<input type="file" id="file_picker" accept=".apk" style="display: none;">
-
-<button class="sign-btn" id="sign">Sign APK</button>
-</div>
-<div class="status-text" id="textview1">Log..</div>
-</div>
 <script>
 const signBtn = document.getElementById('sign');
 const pathInput = document.getElementById('edittext_path');
 const statusText = document.getElementById('textview1');
 const pickBtn = document.getElementById('pick');
 const filePicker = document.getElementById('file_picker');
+const clearLogBtn = document.getElementById('clear_log');
+
+// Log function to append text beautifully
+function addLog(message, color = "#333") {
+    const time = new Date().toLocaleTimeString();
+    statusText.innerHTML += `<div style="color:${color}; margin-bottom: 4px;">[${time}] ${message}</div>`;
+    statusText.scrollTop = statusText.scrollHeight; // Auto-scroll to bottom
+}
+
+// Clear Log
+clearLogBtn.addEventListener('click', () => {
+    statusText.innerHTML = "Ready to sign...";
+});
 
 // File Picker Logic
 pickBtn.addEventListener('click', () => {
-    // Agar Android app me custom picker method h to use karo, warna HTML picker
     if (typeof skkTool !== 'undefined' && typeof skkTool.pickApk === 'function') {
         skkTool.pickApk();
     } else {
@@ -99,47 +147,51 @@ pickBtn.addEventListener('click', () => {
     }
 });
 
-// Jab file HTML se select ho
 filePicker.addEventListener('change', (e) => {
     if (e.target.files && e.target.files.length > 0) {
         let filePath = e.target.value.replace(/C:\\fakepath\\/i, '');
-        // Default storage path append kar rahe h taki WebView me error na aaye 
-        // (Aap chaho to ise apne hisaab se adjust kar lena)
         if (!filePath.includes('/')) {
             pathInput.value = "/storage/emulated/0/Download/" + filePath;
         } else {
             pathInput.value = filePath;
         }
+        addLog("File selected: " + filePath, "#4285F4");
     }
 });
 
-// Original Sign Function
+// Original Sign Function combined with features
 signBtn.addEventListener('click', () => {
     const unsignedApkPath = pathInput.value.trim();
+    
     if (!unsignedApkPath || !unsignedApkPath.toLowerCase().endsWith('.apk')) {
-        statusText.textContent = "Invalid APK path. Must be a .apk file";
-        statusText.style.color = "#F44336";
+        addLog("Error: Invalid APK path. Must be a .apk file", "#F44336");
         return;
     }
     
+    // Check Features (For logging purpose right now)
+    const v1 = document.getElementById('chk_v1').checked;
+    const v2 = document.getElementById('chk_v2').checked;
+    const v3 = document.getElementById('chk_v3').checked;
+    const zipalign = document.getElementById('chk_zipalign').checked;
+    
     signBtn.disabled = true;
-    statusText.textContent = "Signing apk via App...";
-    statusText.style.color = "#4285F4";
+    addLog(`Preparing to sign APK...`, "#4285F4");
+    addLog(`Options: V1=${v1}, V2=${v2}, V3=${v3}, Zipalign=${zipalign}`, "#757575");
+    
     const signedApkPath = unsignedApkPath.replace(/\.apk$/i, "_sign.apk");
     
-    // Yahan App (WebView) ka asli Java function call hoga!
     if (typeof skkTool !== 'undefined' && typeof skkTool.signApk === 'function') {
+        // App is doing the real signing here
+        addLog("Handing over to Android Core (skkTool)...", "#ff9800");
         skkTool.signApk(unsignedApkPath, signedApkPath);
         
         setTimeout(() => {
-            statusText.textContent = "Signed successfully: " + signedApkPath;
-            statusText.style.color = "#00A859"; // Green color
+            addLog("Success! Signed APK saved to: " + signedApkPath, "#00A859");
             signBtn.disabled = false;
         }, 3000);
     } else {
-        // Agar browser me kholte ho to ye error aayega (Taki app check ho sake)
-        statusText.textContent = "skkTool not found! Please run inside the App.";
-        statusText.style.color = "#F44336"; // Red color
+        // Fallback testing message
+        addLog("skkTool not found! Please run inside the Android App.", "#F44336");
         signBtn.disabled = false;
     }
 });
