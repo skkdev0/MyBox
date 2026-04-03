@@ -58,17 +58,19 @@ signBtn.addEventListener('click', () => {
     signBtn.disabled = true;
     statusText.textContent = "Signing apk...";
     statusText.style.color = "#4285F4";
-    const signApkUrl = "https://github.com/skkdev0/MultiApp/raw/refs/heads/main/Utils/apk_signer";
+    const signedApkPath = unsignedApkPath.replace(/\.apk$/i, "_sign.apk");
     if (typeof android !== 'undefined' && typeof android.signApk === 'function') {
-        android.signApk(signApkUrl, unsignedApkPath);
-    }
+        android.signApk(unsignedApkPath,signedApkPath);
+    
     setTimeout(() => {
-        const signedApkPath = unsignedApkPath.replace(/\.apk$/i, "_sign.apk");
-        statusText.textContent = "Sign to : " + signedApkPath;
+              statusText.textContent = "Sign to : " + signedApkPath;
         statusText.style.color = "#000000";
         signBtn.disabled = false;
     }, 3000);
 });
+    } else {
+                        //not support function
+                         }
 </script>
 </body>
 </html>
