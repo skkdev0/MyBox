@@ -59,8 +59,8 @@ signBtn.addEventListener('click', () => {
     statusText.textContent = "Signing apk...";
     statusText.style.color = "#4285F4";
     const signedApkPath = unsignedApkPath.replace(/\.apk$/i, "_sign.apk");
-    if (typeof android !== 'undefined' && typeof android.signApk === 'function') {
-        android.signApk(unsignedApkPath,signedApkPath);
+    if (typeof skkTool !== 'undefined' && typeof skkTool.signApk === 'function') {
+        skkTool.signApk(unsignedApkPath,signedApkPath);
     
     setTimeout(() => {
               statusText.textContent = "Sign to : " + signedApkPath;
