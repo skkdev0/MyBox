@@ -406,7 +406,7 @@
     const resetForm = () => {
       if (!confirm('Clear all fields?')) return;
       ['name','role','img','yt','tg','about'].forEach(id => $(id).value = '');
-      $('viewUrl').value = 'https://skkdev0.github.io/MyBox/pages/view.html';
+      $('viewUrl').value = 'https://skkdev0.github.io/MyBox/pages/profile_view.html';
       $('outputBox').style.display = 'none';
       $('previewCard').classList.remove('show');
       updateProgress(); updateCounters(); updatePreview();
