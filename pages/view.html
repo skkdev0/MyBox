@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>👤 Profile View</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px;
+    }
+    .profile-card {
+      width: 100%; max-width: 500px; background: #fff; border-radius: 24px;
+      padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.12); text-align: center;
+    }
+    .profile-img {
+      width: 120px; height: 120px; border-radius: 50%; object-fit: cover;
+      border: 4px solid #667eea; margin: 0 auto 20px; display: block;
+      background: #f0f0f0;
+    }
+    .profile-name { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 5px; }
+    .profile-role { font-size: 15px; color: #666; margin-bottom: 20px; }
+    
+    .about-section {
+      background: #f8f9ff; border-radius: 16px; padding: 15px 20px;
+      margin: 20px 0; text-align: left; white-space: pre-wrap; /* ✅ Multi-line support */
+      font-size: 14px; color: #333; line-height: 1.6;
+    }
+    
+    .links-grid { display: grid; gap: 12px; margin-top: 20px; }
+    .link-btn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 14px; border-radius: 14px; text-decoration: none;
+      font-weight: 600; font-size: 15px; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .link-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+    .yt-btn { background: #ff0000; color: white; }
+    .tg-btn { background: #0088cc; color: white; }
+    
+    .error-msg {
+      background: #ffebee; color: #c62828; padding: 15px; border-radius: 12px;
+      font-size: 14px; text-align: center; margin: 20px 0;
+    }
+    .footer { margin-top: 30px; font-size: 12px; color: #888; }
+    
+    /* Loading animation */
+    .loading { color: #666; font-style: italic; padding: 20px; }
+  </style></head>
+<body>
+  <div class="profile-card" id="profileCard">
+    <p class="loading">⏳ Loading profile...</p>
+  </div>
+
+  <script>
+    // UTF-8 safe base64 decode
+    function base64ToUtf8(str) {
+      return decodeURIComponent(escape(atob(str)));
+    }
+
+    function loadProfile() {
+      const params = new URLSearchParams(window.location.search);
+      const encodedData = params.get('a');
+
+      const card = document.getElementById('profileCard');
+
+      if (!encodedData) {
+        card.innerHTML = `
+          <div class="error-msg">
+            ❌ No profile data found!<br>
+            <small>Make sure the URL has <code>?a=base64data</code></small>
+          </div>
+          <div class="footer">Built with ❤️ using Base64 Profile System</div>
+        `;
+        return;
+      }
+
+      try {
+        // Decode: Base64 → UTF-8 JSON → Object
+        const decoded = base64ToUtf8(encodedData);
+        const data = JSON.parse(decoded);
+
+        // Build profile HTML
+        let html = '';
+
+        // Profile Image
+        if (data.img) {
+          html += `<img src="${escapeHtml(data.img)}" alt="Profile" class="profile-img" onerror="this.style.display='none'">`;
+        }
+
+        // Name & Role
+        if (data.name || data.role) {
+          if (data.name) html += `<div class="profile-name">${escapeHtml(data.name)}</div>`;
+          if (data.role) html += `<div class="profile-role">${escapeHtml(data.role)}</div>`;
+        }
+
+        // About Section (with multi-line support ✅)
+        if (data.about) {          html += `<div class="about-section">${escapeHtml(data.about)}</div>`;
+        }
+
+        // Social Links
+        const links = [];
+        if (data.yt) links.push({ url: data.yt, text: '📺 YouTube', class: 'yt-btn' });
+        if (data.tg) links.push({ url: data.tg, text: '✈️ Telegram', class: 'tg-btn' });
+
+        if (links.length > 0) {
+          html += `<div class="links-grid">`;
+          links.forEach(link => {
+            html += `<a href="${escapeHtml(link.url)}" target="_blank" class="link-btn ${link.class}">${link.text}</a>`;
+          });
+          html += `</div>`;
+        }
+
+        html += `<div class="footer">🔗 Shared via Base64 Profile System</div>`;
+        card.innerHTML = html;
+
+      } catch (e) {
+        console.error('Decode error:', e);
+        card.innerHTML = `
+          <div class="error-msg">
+            ❌ Invalid or corrupted profile data!<br>
+            <small>${e.message}</small>
+          </div>
+          <div class="footer">Please check the URL or regenerate the link.</div>
+        `;
+      }
+    }
+
+    // XSS Prevention: Escape HTML special characters
+    function escapeHtml(text) {
+      if (!text) return '';
+      const map = { '&': '&', '<': '<', '>': '>', '"': '"', "'": '&#039;' };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Load on page ready
+    document.addEventListener('DOMContentLoaded', loadProfile);
+  </script>
+</body>
+</html>
