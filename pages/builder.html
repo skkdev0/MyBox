@@ -150,131 +150,183 @@
 
         <!-- Base URL -->
         <div class="input-group">
-            <label>1. Your GitHub Page Link (Base URL) <span class="required-star">*</span></label>
-            <input type="text" id="baseUrl" placeholder="https://username.github.io/my-page/" required>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🛠️ Profile Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px;
+    }
+    .container {
+      width: 100%; max-width: 600px; background: #fff; padding: 30px 40px;
+      border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    h1 { text-align: center; color: #1a1a2e; font-size: 24px; margin-bottom: 5px; }
+    .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 25px; }
+    .input-group { margin-bottom: 15px; }
+    label { display: block; font-size: 13px; font-weight: 600; color: #4a4a6a; margin-bottom: 5px; }
+    input, textarea {
+      width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 10px;
+      font-size: 14px; outline: none; transition: border 0.3s; background: #f9f9f9;
+    }
+    input:focus, textarea:focus { border-color: #667eea; background: #fff; box-shadow: 0 0 5px rgba(102,126,234,0.3); }
+    textarea { resize: vertical; min-height: 80px; white-space: pre-wrap; }
+    .required-star { color: red; }
+    .btn-generate {
+      width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600;
+      cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; margin-top: 10px;
+    }
+    .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(118,75,162,0.3); }
+    
+    .output-box {
+      margin-top: 25px; display: none; padding-top: 20px; border-top: 2px dashed #ddd;
+    }
+    .result-url {
+      width: 100%; padding: 12px; background: #e8f5e9; border: 1px solid #c8e6c9;
+      color: #2e7d32; border-radius: 10px; font-size: 13px; word-break: break-all; margin-bottom: 10px;
+    }
+    .action-buttons { display: flex; gap: 10px; }
+    .btn-action {
+      flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 600;
+      cursor: pointer; transition: 0.3s; font-size: 14px;
+    }
+    .btn-copy { background: #1a1a2e; color: white; }
+    .btn-copy:hover { background: #33334d; }
+    .btn-test { background: #4caf50; color: white; }    .btn-test:hover { background: #43a047; }
+    .info-note {
+      font-size: 12px; color: #666; background: #f0f4ff; padding: 10px;
+      border-radius: 8px; margin-top: 10px; border-left: 3px solid #667eea;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🛠️ Profile Builder</h1>
+    <p class="subtitle">Fill details → Get Base64 Encoded Profile Link</p>
 
-        <!-- Name -->
-        <div class="input-group">
-            <label>2. Your Name</label>
-            <input type="text" id="name" placeholder="e.g., Rachit Pandey">
-        </div>
-
-        <!-- Role -->
-        <div class="input-group">
-            <label>3. Your Role / Subtitle</label>
-            <input type="text" id="role" placeholder="e.g., Youtuber & Developer">
-        </div>
-
-        <!-- Profile Image -->
-        <div class="input-group">
-            <label>4. Profile Image URL (Optional)</label>
-            <input type="url" id="img" placeholder="https://link-to-your-photo.jpg">
-        </div>
-
-        <!-- YouTube Link -->
-        <div class="input-group">
-            <label>5. YouTube Channel Link</label>
-            <input type="url" id="yt" placeholder="https://youtube.com/@yourchannel">
-        </div>
-
-        <!-- Telegram Link -->
-        <div class="input-group">
-            <label>6. Telegram Group/Profile Link</label>
-            <input type="url" id="tg" placeholder="https://t.me/yourusername">
-        </div>
-
-        <!-- About Text -->
-        <div class="input-group">
-            <label>7. About Section Text</label>
-            <textarea id="about" placeholder="Write something about yourself..."></textarea>
-        </div>
-
-        <!-- Generate Button -->
-        <button class="btn-generate" onclick="generateLink()">✨ Generate Magic Link</button>
-
-        <!-- Output Area (Hidden initially) -->
-        <div class="output-box" id="outputBox">
-            <label>🎉 Your Custom URL is Ready:</label>
-            <textarea class="result-url" id="finalUrl" readonly rows="3"></textarea>
-            
-            <div class="action-buttons">
-                <button class="btn-action btn-copy" id="copyBtn" onclick="copyToClipboard()">📋 Copy Link</button>
-                <button class="btn-action btn-test" onclick="testLink()">🌐 Open & Test</button>
-            </div>
-        </div>
-
+    <!-- Base URL for view.html -->
+    <div class="input-group">
+      <label>📍 View Page URL (view.html location) <span class="required-star">*</span></label>
+      <input type="text" id="viewUrl" placeholder="https://myweb.github.io/view.html" required>
     </div>
 
-    <script>
-        function generateLink() {
-            let baseUrl = document.getElementById('baseUrl').value.trim();
-            
-            // Error handling: If base URL is empty
-            if (!baseUrl) {
-                alert("Please enter your GitHub Page Link (Base URL) first!");
-                document.getElementById('baseUrl').focus();
-                return;
-            }
+    <!-- Profile Fields -->
+    <div class="input-group">
+      <label>👤 Full Name</label>
+      <input type="text" id="name" placeholder="e.g., Rachit Pandey">
+    </div>
+    <div class="input-group">
+      <label>💼 Role / Title</label>
+      <input type="text" id="role" placeholder="e.g., Developer & Creator">
+    </div>
+    <div class="input-group">
+      <label>🖼️ Profile Image URL</label>
+      <input type="url" id="img" placeholder="https://example.com/photo.jpg">
+    </div>
+    <div class="input-group">
+      <label>📺 YouTube Link</label>
+      <input type="url" id="yt" placeholder="https://youtube.com/@channel">
+    </div>
+    <div class="input-group">
+      <label>✈️ Telegram Link</label>
+      <input type="url" id="tg" placeholder="https://t.me/username">
+    </div>
+    <div class="input-group">
+      <label>📝 About (Multi-line supported ✨)</label>
+      <textarea id="about" placeholder="Write about yourself&#10;New lines will be preserved!&#10;• Point 1&#10;• Point 2"></textarea>
+    </div>
 
-            // Ensure base URL doesn't have accidental spaces
-            if (baseUrl.endsWith('/')) {
-                baseUrl = baseUrl.slice(0, -1); // Remove last slash to avoid double slash
-            }
+    <button class="btn-generate" onclick="generateLink()">✨ Generate Base64 Link</button>
 
-            // Create a URLSearchParams object to handle special characters cleanly
-            const params = new URLSearchParams();
+    <div class="output-box" id="outputBox">
+      <label>🎉 Your Encoded Profile URL:</label>
+      <textarea class="result-url" id="finalUrl" readonly rows="4"></textarea>
+      <div class="info-note">        🔐 डेटा Base64 मा एन्कोड गरिएको छ। मल्टीलाइन, इमोजी, स्पेशल क्यारेक्टर सबै सुरक्षित!
+      </div>
+      <div class="action-buttons">
+        <button class="btn-action btn-copy" id="copyBtn" onclick="copyToClipboard()">📋 Copy Link</button>
+        <button class="btn-action btn-test" onclick="testLink()">🌐 Open & Test</button>
+      </div>
+    </div>
+  </div>
 
-            const name = document.getElementById('name').value.trim();
-            const role = document.getElementById('role').value.trim();
-            const img = document.getElementById('img').value.trim();
-            const yt = document.getElementById('yt').value.trim();
-            const tg = document.getElementById('tg').value.trim();
-            const about = document.getElementById('about').value.trim();
+  <script>
+    // UTF-8 safe base64 encode/decode helpers
+    function utf8ToBase64(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+    function base64ToUtf8(str) {
+      return decodeURIComponent(escape(atob(str)));
+    }
 
-            // Add parameters only if user typed something
-            if (name) params.append('name', name);
-            if (role) params.append('role', role);
-            if (img) params.append('img', img);
-            if (yt) params.append('yt', yt);
-            if (tg) params.append('tg', tg);
-            if (about) params.append('about', about);
+    function generateLink() {
+      const viewUrl = document.getElementById('viewUrl').value.trim();
+      if (!viewUrl) {
+        alert("Please enter the View Page URL (view.html location) first!");
+        document.getElementById('viewUrl').focus();
+        return;
+      }
 
-            // Construct final URL
-            let queryString = params.toString();
-            let finalMagicUrl = baseUrl;
-            
-            if (queryString !== "") {
-                finalMagicUrl = baseUrl + "/?" + queryString;
-            }
+      // Collect all profile data
+      const profileData = {
+        name: document.getElementById('name').value.trim(),
+        role: document.getElementById('role').value.trim(),
+        img: document.getElementById('img').value.trim(),
+        yt: document.getElementById('yt').value.trim(),
+        tg: document.getElementById('tg').value.trim(),
+        about: document.getElementById('about').value // Keep newlines as-is
+      };
 
-            // Show output box and set URL
-            document.getElementById('outputBox').style.display = 'block';
-            document.getElementById('finalUrl').value = finalMagicUrl;
-            
-            // Reset Copy button text
-            document.getElementById('copyBtn').innerHTML = "📋 Copy Link";
-            document.getElementById('copyBtn').style.background = "#1a1a2e";
-        }
+      // Remove empty fields to keep URL short
+      Object.keys(profileData).forEach(key => {
+        if (!profileData[key]) delete profileData[key];
+      });
 
-        function copyToClipboard() {
-            const copyText = document.getElementById("finalUrl");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999); // For mobile devices
+      if (Object.keys(profileData).length === 0) {
+        alert("Please fill at least one field!");
+        return;
+      }
 
-            navigator.clipboard.writeText(copyText.value).then(() => {
-                const btn = document.getElementById('copyBtn');
-                btn.innerHTML = "✅ Copied!";
-                btn.style.background = "#4caf50"; // Turn green
-            });
-        }
+      // Convert to JSON → UTF-8 → Base64
+      const jsonString = JSON.stringify(profileData);
+      const base64Data = utf8ToBase64(jsonString);
+      // Build final URL: view.html?a=base64data
+      const separator = viewUrl.includes('?') ? '&' : '?';
+      const finalUrl = `${viewUrl}${separator}a=${encodeURIComponent(base64Data)}`;
 
-        function testLink() {
-            const finalUrl = document.getElementById("finalUrl").value;
-            if(finalUrl) {
-                window.open(finalUrl, '_blank');
-            }
-        }
-    </script>
+      // Show output
+      document.getElementById('outputBox').style.display = 'block';
+      document.getElementById('finalUrl').value = finalUrl;
+      document.getElementById('copyBtn').innerHTML = "📋 Copy Link";
+      document.getElementById('copyBtn').style.background = "#1a1a2e";
+    }
+
+    function copyToClipboard() {
+      const copyText = document.getElementById("finalUrl");
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(copyText.value).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.innerHTML = "✅ Copied!";
+        btn.style.background = "#4caf50";
+        setTimeout(() => {
+          btn.innerHTML = "📋 Copy Link";
+          btn.style.background = "#1a1a2e";
+        }, 2000);
+      });
+    }
+
+    function testLink() {
+      const url = document.getElementById("finalUrl").value;
+      if (url) window.open(url, '_blank');
+    }
+  </script>
 </body>
 </html>
