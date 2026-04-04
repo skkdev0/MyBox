@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Create your professional profile link instantly">
   <meta name="theme-color" content="#6366f1">
   <title>Profile Link Generator</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
   <style>
     :root {
       --primary: #6366f1; --primary-dark: #4f46e5; --secondary: #0ea5e9;
@@ -16,7 +16,7 @@
       --text-primary-light: #1e293b; --text-primary-dark: #f1f5f9;
       --text-secondary-light: #64748b; --text-secondary-dark: #94a3b8;
       --border-light: #e2e8f0; --border-dark: #334155;
-      --success: #22c55e; --error: #ef4444; --warning: #f59e0b;
+      --success: #22c55e; --error: #ef4444;
       --shadow-light: 0 10px 40px -10px rgba(0,0,0,0.1);
       --shadow-dark: 0 10px 40px -10px rgba(0,0,0,0.4);
       --radius: 20px; --radius-sm: 12px;
@@ -53,79 +53,33 @@
       color: var(--text-primary);
     }
     .theme-toggle:hover { background: var(--primary); color: white; transform: rotate(15deg); }
-    .progress-bar {
-      height: 4px; background: var(--border); border-radius: 2px;
-      margin: 0 0 24px 0; overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary));
-      width: 0%; transition: width 0.3s ease; border-radius: 2px;
-    }
+    .progress-bar { height: 4px; background: var(--border); border-radius: 2px; margin: 0 0 24px 0; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0%; transition: width 0.3s ease; border-radius: 2px; }
     .input-group { margin-bottom: 16px; }
-    .input-group label {
-      display: flex; align-items: center; gap: 8px; font-size: 13px;
-      font-weight: 600; color: var(--text-primary); margin-bottom: 8px;
-    }
+    .input-group label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
     .input-group label .required { color: var(--error); }
     .input-wrapper { position: relative; }
-    input, textarea {
-      width: 100%; padding: 14px 16px; border: 2px solid var(--border);
-      border-radius: var(--radius-sm); font-size: 14px; outline: none;
-      transition: all 0.2s; background: var(--card-bg); color: var(--text-primary);
-    }
-    input:focus, textarea:focus {
-      border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
-    }
+    input, textarea { width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; outline: none; transition: all 0.2s; background: var(--card-bg); color: var(--text-primary); }
+    input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99,102,241,0.15); }
     input.invalid { border-color: var(--error); }
     input.valid { border-color: var(--success); }
-    .validation-icon {
-      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-      font-size: 16px; display: none;
-    }
+    .validation-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; display: none; }
     input.invalid + .validation-icon { display: block; color: var(--error); }
     input.valid + .validation-icon { display: block; color: var(--success); }
     textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
-    .char-counter {
-      text-align: right; font-size: 11px; color: var(--text-secondary);
-      margin-top: 4px;
-    }
-    .image-preview {
-      width: 64px; height: 64px; border-radius: 50%; margin: 12px 0;
-      background: var(--border); display: flex; align-items: center;
-      justify-content: center; font-size: 24px; overflow: hidden;
-      border: 3px solid var(--primary);
-    }
+    .char-counter { text-align: right; font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+    .image-preview { width: 64px; height: 64px; border-radius: 50%; margin: 12px 0; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 24px; overflow: hidden; border: 3px solid var(--primary); }
     .image-preview img { width: 100%; height: 100%; object-fit: cover; }
-    .btn-generate {      width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white; border: none; border-radius: var(--radius-sm);
-      font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-      margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 10px;
-    }
+    .btn-generate { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: var(--radius-sm); font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
     .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(99,102,241,0.4); }
     .btn-generate:active { transform: translateY(0); }
     .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-    .output-box {
-      margin-top: 28px; padding-top: 24px; border-top: 2px dashed var(--border);
-      animation: fadeIn 0.3s ease; display: none;
-    }
+    .output-box { margin-top: 28px; padding-top: 24px; border-top: 2px dashed var(--border); animation: fadeIn 0.3s ease; display: none; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .output-box label {
-      display: block; font-size: 13px; font-weight: 600; color: var(--text-primary);
-      margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
-    }
-    .result-url {
-      width: 100%; padding: 14px 16px; background: rgba(34,197,94,0.1);
-      border: 2px solid rgba(34,197,94,0.3); color: var(--success);
-      border-radius: var(--radius-sm); font-size: 13px; word-break: break-all;
-      margin-bottom: 14px; font-family: 'Inter', monospace; line-height: 1.4;
-    }
+    .output-box label { display: block; font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .result-url { width: 100%; padding: 14px 16px; background: rgba(34,197,94,0.1); border: 2px solid rgba(34,197,94,0.3); color: var(--success); border-radius: var(--radius-sm); font-size: 13px; word-break: break-all; margin-bottom: 14px; font-family: 'Inter', monospace; line-height: 1.4; }
     .action-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
-    .btn-action {
-      flex: 1; min-width: 120px; padding: 14px; border: none;
-      border-radius: var(--radius-sm); font-weight: 600; cursor: pointer;
-      transition: all 0.2s; font-size: 14px; display: flex; align-items: center;
-      justify-content: center; gap: 6px;
-    }
+    .btn-action { flex: 1; min-width: 120px; padding: 14px; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .btn-copy { background: var(--text-primary); color: var(--card-bg); }
     .btn-copy:hover { background: #334155; }
     .btn-copy.copied { background: var(--success); color: white; }
@@ -135,76 +89,31 @@
     .btn-qr:hover { background: #0284c7; }
     .btn-reset { background: var(--border); color: var(--text-primary); }
     .btn-reset:hover { background: var(--error); color: white; }
-    .info-badge {
-      display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
-      color: var(--text-secondary); background: var(--border);
-      padding: 8px 14px; border-radius: 10px; margin-top: 12px;
-    }
-    .preview-section {
-      margin: 24px 0 16px; text-align: center;
-    }
-    .preview-toggle {
-      background: none; border: none; color: var(--primary);
-      font-size: 14px; font-weight: 600; cursor: pointer;      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 16px; border-radius: 10px;
-      transition: background 0.2s;
-    }
+    .info-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); background: var(--border); padding: 8px 14px; border-radius: 10px; margin-top: 12px; }
+    .preview-section { margin: 24px 0 16px; text-align: center; }
+    .preview-toggle { background: none; border: none; color: var(--primary); font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 10px; transition: background 0.2s; }
     .preview-toggle:hover { background: rgba(99,102,241,0.1); }
-    .preview-card {
-      background: var(--border); border-radius: var(--radius);
-      padding: 24px; margin-top: 16px; border: 2px solid var(--border);
-      display: none; animation: slideUp 0.3s ease;
-    }
+    .preview-card { background: var(--border); border-radius: var(--radius); padding: 24px; margin-top: 16px; border: 2px solid var(--border); display: none; animation: slideUp 0.3s ease; }
     .preview-card.show { display: block; }
-    .preview-avatar {
-      width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 16px;
-      background: var(--card-bg); display: flex; align-items: center;
-      justify-content: center; font-size: 28px; border: 3px solid var(--primary);
-      overflow: hidden;
-    }
-    .preview-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .preview-name { font-weight: 700; font-size: 18px; color: var(--text-primary); }
+    .preview-avatar { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 16px; background: var(--card-bg); display: flex; align-items: center; justify-content: center; font-size: 28px; border: 3px solid var(--primary); overflow: hidden; }
+    .preview-avatar img { width: 100%; height: 100%; object-fit: cover; }    .preview-name { font-weight: 700; font-size: 18px; color: var(--text-primary); }
     .preview-role { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-    .preview-about {
-      margin-top: 16px; padding: 12px; background: var(--card-bg);
-      border-radius: 10px; font-size: 13px; color: var(--text-primary);
-      white-space: pre-wrap; line-height: 1.5; text-align: left;
-    }
-    .qr-modal {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-      display: none; align-items: center; justify-content: center;
-      z-index: 1000; padding: 20px; animation: fadeIn 0.2s;
-    }
+    .preview-about { margin-top: 16px; padding: 12px; background: var(--card-bg); border-radius: 10px; font-size: 13px; color: var(--text-primary); white-space: pre-wrap; line-height: 1.5; text-align: left; }
+    .qr-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; animation: fadeIn 0.2s; backdrop-filter: blur(4px); }
     .qr-modal.show { display: flex; }
-    .qr-content {
-      background: var(--card-bg); padding: 24px; border-radius: var(--radius);
-      text-align: center; max-width: 320px; width: 100%;
-      border: 1px solid var(--border);
-    }
-    .qr-code {
-      width: 200px; height: 200px; margin: 0 auto 16px;
-      background: var(--border); border-radius: 16px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 64px;
-    }
-    .toast {
-      position: fixed; bottom: 24px; right: 24px; background: var(--text-primary);
-      color: var(--card-bg); padding: 14px 20px; border-radius: 12px;
-      font-size: 14px; font-weight: 500; display: flex; align-items: center;
-      gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 1001;
-      animation: slideIn 0.3s ease; max-width: 320px;
-    }
-    .toast.success { background: var(--success); color: white; }    .toast.error { background: var(--error); color: white; }
+    .qr-content { background: var(--card-bg); padding: 28px; border-radius: var(--radius); text-align: center; max-width: 340px; width: 100%; border: 1px solid var(--border); position: relative; }
+    .qr-close { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-secondary); transition: color 0.2s; }
+    .qr-close:hover { color: var(--error); }
+    .qr-image { width: 220px; height: 220px; margin: 0 auto 16px; border-radius: 16px; background: var(--card-bg); display: flex; align-items: center; justify-content: center; }
+    .qr-image img { width: 100%; height: 100%; border-radius: 16px; }
+    .btn-download { background: var(--primary); color: white; width: 100%; margin-top: 8px; }
+    .btn-download:hover { background: var(--primary-dark); }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--text-primary); color: var(--card-bg); padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 1001; animation: slideIn 0.3s ease; max-width: 320px; pointer-events: none; }
+    .toast.success { background: var(--success); color: white; }
+    .toast.error { background: var(--error); color: white; }
     @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    .shortcut-hint {
-      font-size: 11px; color: var(--text-secondary); text-align: center;
-      margin-top: 16px; padding: 8px; background: var(--border);
-      border-radius: 8px;
-    }
-    .shortcut-hint kbd {
-      background: var(--card-bg); padding: 2px 6px; border-radius: 4px;
-      border: 1px solid var(--border); font-family: monospace;
-    }
+    .shortcut-hint { font-size: 11px; color: var(--text-secondary); text-align: center; margin-top: 16px; padding: 8px; background: var(--border); border-radius: 8px; }
+    .shortcut-hint kbd { background: var(--card-bg); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); font-family: monospace; }
     @media (max-width: 640px) {
       .container { padding: 28px 20px; }
       .header { flex-direction: column; align-items: center; text-align: center; }
@@ -228,29 +137,16 @@
       </div>
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌓</button>
     </div>
-
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-
-    <div class="input-group">
-      <label>📍 Profile Viewer URL <span class="required">*</span></label>
-      <div class="input-wrapper">
-        <input type="url" id="viewUrl" placeholder="https://.../" required aria-describedby="urlHint">
-        <span class="validation-icon">✓</span>
-      </div>
-      <small id="urlHint" style="color:var(--text-secondary);font-size:11px;">Must be a valid https URL</small>
-    </div>
-
     <div class="input-group">
       <label>👤 Full Name</label>
       <input type="text" id="name" placeholder="Your name" maxlength="50">
-      <div class="char-counter"><span id="nameCount">0</span>/50</div>    </div>
-
+      <div class="char-counter"><span id="nameCount">0</span>/50</div>
+    </div>
     <div class="input-group">
       <label>💼 Role / Title</label>
-      <input type="text" id="role" placeholder="e.g., Developer" maxlength="60">
-      <div class="char-counter"><span id="roleCount">0</span>/60</div>
+      <input type="text" id="role" placeholder="e.g., Developer" maxlength="60">      <div class="char-counter"><span id="roleCount">0</span>/60</div>
     </div>
-
     <div class="input-group">
       <label>🖼️ Profile Image URL</label>
       <div class="input-wrapper">
@@ -259,7 +155,6 @@
       </div>
       <div class="image-preview" id="imgPreview">👤</div>
     </div>
-
     <div class="input-group">
       <label>📺 YouTube</label>
       <div class="input-wrapper">
@@ -267,7 +162,6 @@
         <span class="validation-icon">✓</span>
       </div>
     </div>
-
     <div class="input-group">
       <label>✈️ Telegram</label>
       <div class="input-wrapper">
@@ -275,26 +169,21 @@
         <span class="validation-icon">✓</span>
       </div>
     </div>
-
     <div class="input-group">
       <label>📝 About</label>
       <textarea id="about" placeholder="Tell about yourself..." maxlength="300"></textarea>
       <div class="char-counter"><span id="aboutCount">0</span>/300</div>
     </div>
-
-    <button class="btn-generate" id="generateBtn" onclick="generateLink()">
-      <span>✨</span> Generate Profile Link
-    </button>
-
+    <button class="btn-generate" id="generateBtn" onclick="generateLink()"><span>✨</span> Generate Profile Link</button>
     <div class="preview-section">
       <button type="button" class="preview-toggle" onclick="togglePreview()">👁️ Live Preview</button>
     </div>
     <div class="preview-card" id="previewCard">
       <div class="preview-avatar" id="previewAvatar"><span>👤</span></div>
       <div class="preview-name" id="previewName">Your Name</div>
-      <div class="preview-role" id="previewRole">Your Role</div>      <div class="preview-about" id="previewAbout">Your about section will appear here...</div>
+      <div class="preview-role" id="previewRole">Your Role</div>
+      <div class="preview-about" id="previewAbout">Your about section will appear here...</div>
     </div>
-
     <div class="output-box" id="outputBox">
       <label>🎉 Your Profile Link:</label>
       <textarea class="result-url" id="finalUrl" readonly rows="3"></textarea>
@@ -305,23 +194,19 @@
         <button class="btn-action btn-qr" onclick="showQR()"><span>📱</span> QR</button>
         <button class="btn-action btn-reset" onclick="resetForm()"><span>🔄</span> Reset</button>
       </div>
-    </div>
-
-    <div class="shortcut-hint">⌨️ Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to generate</div>
+    </div>    <div class="shortcut-hint">⌨️ Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to generate</div>
   </div>
-
-  <div class="qr-modal" id="qrModal" onclick="hideQR(event)">
+  <div class="qr-modal" id="qrModal">
     <div class="qr-content">
-      <div class="qr-code" id="qrCode">🔲</div>
-      <div style="font-weight:600;margin-bottom:8px;">Scan to Open Profile</div>
-      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">Point your camera at the code</div>
-      <button class="btn-action btn-copy" onclick="copyQRUrl()" style="width:100%"><span>📋</span> Copy Link</button>
+      <button class="qr-close" onclick="hideQR()">✕</button>
+      <div style="font-weight:600;margin-bottom:12px;">Scan to Open Profile</div>
+      <div class="qr-image" id="qrImageContainer"></div>
+      <button class="btn-action btn-download" id="downloadQrBtn"><span>⬇️</span> Download QR</button>
     </div>
   </div>
-
   <div id="toast" class="toast" style="display:none;"></div>
-
   <script>
+    const VIEW_URL = "https://skkdev0.github.io/MyBox/pages/profile_view.html";
     const $ = id => document.getElementById(id);
     const utf8ToBase64 = str => btoa(unescape(encodeURIComponent(str)));
     const isValidUrl = str => { try { new URL(str); return str.startsWith('https'); } catch { return false; } };
@@ -330,7 +215,7 @@
       setTimeout(() => t.style.display = 'none', 3000);
     };
     const updateProgress = () => {
-      const fields = ['viewUrl','name','role','img','yt','tg','about'];
+      const fields = ['name','role','img','yt','tg','about'];
       const filled = fields.filter(id => $(id).value.trim()).length;
       $('progressFill').style.width = `${Math.round(filled/fields.length*100)}%`;
     };
@@ -341,7 +226,8 @@
       });
     };
     const validateUrlInput = (el, icon) => {
-      const val = el.value.trim();      if (!val) { el.classList.remove('valid','invalid'); return; }
+      const val = el.value.trim();
+      if (!val) { el.classList.remove('valid','invalid'); return; }
       if (isValidUrl(val)) { el.classList.add('valid'); el.classList.remove('invalid'); }
       else { el.classList.add('invalid'); el.classList.remove('valid'); }
     };
@@ -357,11 +243,8 @@
       if (img && isValidUrl(img)) {
         avatar.innerHTML = `<img src="${img}" alt="Preview" onerror="this.parentElement.innerHTML='👤'">`;
       } else { avatar.innerHTML = '<span>👤</span>'; }
-    };
-    const togglePreview = () => { $('previewCard').classList.toggle('show'); if ($('previewCard').classList.contains('show')) updatePreview(); };
+    };    const togglePreview = () => { $('previewCard').classList.toggle('show'); if ($('previewCard').classList.contains('show')) updatePreview(); };
     const generateLink = () => {
-      const viewUrl = $('viewUrl').value.trim();
-      if (!viewUrl || !isValidUrl(viewUrl)) { showToast('Please enter a valid https URL', 'error'); $('viewUrl').focus(); return; }
       const data = {
         name: $('name').value.trim(), role: $('role').value.trim(), img: $('img').value.trim(),
         yt: $('yt').value.trim(), tg: $('tg').value.trim(), about: $('about').value
@@ -369,7 +252,7 @@
       Object.keys(data).forEach(k => { if (!data[k]) delete data[k]; });
       if (!Object.keys(data).length) { showToast('Please fill at least one field', 'error'); return; }
       const encoded = utf8ToBase64(JSON.stringify(data));
-      const finalUrl = `${viewUrl.split('?')[0]}?a=${encodeURIComponent(encoded)}`;
+      const finalUrl = `${VIEW_URL}?a=${encodeURIComponent(encoded)}`;
       $('outputBox').style.display = 'block';
       $('finalUrl').value = finalUrl;
       $('copyBtn').innerHTML = '<span>📋</span> Copy';
@@ -390,34 +273,46 @@
         showToast('Link copied to clipboard!');
         setTimeout(() => { btn.innerHTML = '<span>📋</span> Copy'; btn.classList.remove('copied'); }, 2000);
       } catch { showToast('Failed to copy', 'error'); }
-    };    const testLink = () => { const url = $('finalUrl').value; if (url) window.open(url, '_blank'); };
+    };
+    const testLink = () => { const url = $('finalUrl').value; if (url) window.open(url, '_blank'); };
     const showQR = () => {
       const url = $('finalUrl').value;
       if (!url) { showToast('Generate a link first', 'error'); return; }
-      $('qrCode').textContent = '🔲';
+      const name = $('name').value.trim().replace(/\s+/g, '_') || 'user';
+      const timestamp = new Date().toISOString().slice(0,10);
+      const safeName = `${name}_${timestamp}`;
+      $('qrImageContainer').innerHTML = '<div style="color:var(--text-secondary)">Generating...</div>';
       $('qrModal').classList.add('show');
       setTimeout(() => {
-        const qrText = url.length > 100 ? url.substring(0,97)+'...' : url;
-        $('qrCode').innerHTML = `<div style="font-size:11px;text-align:center;padding:10px;line-height:1.3">${qrText}</div>`;
-      }, 300);
+        QRCode.toDataURL(url, { width: 250, margin: 1, color: { dark: '#6366f1', light: '#ffffff' } }, (err, dataUrl) => {
+          if (err) { $('qrImageContainer').innerHTML = '❌ Error generating QR'; return; }
+          $('qrImageContainer').innerHTML = `<img src="${dataUrl}" alt="QR Code" id="qrActual">`;
+          $('downloadQrBtn').onclick = () => {
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `profile_qr_${safeName}.png`;
+            document.body.appendChild(a);
+            a.click();            document.body.removeChild(a);
+            showToast('QR downloaded!');
+          };
+        });
+      }, 200);
     };
-    const hideQR = e => { if (e.target === $('qrModal')) $('qrModal').classList.remove('show'); };
-    const copyQRUrl = () => { copyToClipboard(); showToast('QR link copied!'); };
+    const hideQR = () => $('qrModal').classList.remove('show');
     const resetForm = () => {
       if (!confirm('Clear all fields?')) return;
       ['name','role','img','yt','tg','about'].forEach(id => $(id).value = '');
-      $('viewUrl').value = 'https://skkdev0.github.io/MyBox/pages/profile_view.html';
       $('outputBox').style.display = 'none';
       $('previewCard').classList.remove('show');
       updateProgress(); updateCounters(); updatePreview();
       localStorage.removeItem('profileBuilderData');
+      localStorage.removeItem('profileBuilderUrl');
       showToast('Form reset');
     };
     const initTheme = () => {
       const saved = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const theme = saved || (prefersDark ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.setAttribute('data-theme', saved || (prefersDark ? 'dark' : 'light'));
     };
     const toggleTheme = () => {
       const current = document.documentElement.getAttribute('data-theme');
@@ -439,17 +334,18 @@
     };
     document.addEventListener('DOMContentLoaded', () => {
       initTheme(); loadSaved(); updateProgress(); updateCounters();
-      ['viewUrl','img','yt','tg'].forEach(id => {        $(id).addEventListener('input', e => validateUrlInput(e.target, e.target.nextElementSibling));
+      ['img','yt','tg'].forEach(id => {
+        $(id).addEventListener('input', e => validateUrlInput(e.target, e.target.nextElementSibling));
         $(id).addEventListener('blur', e => validateUrlInput(e.target, e.target.nextElementSibling));
       });
       ['name','role','about'].forEach(id => $(id).addEventListener('input', () => { updateCounters(); updateProgress(); if ($('previewCard').classList.contains('show')) updatePreview(); }));
       $('img').addEventListener('input', () => { if ($('previewCard').classList.contains('show')) updatePreview(); });
       $('themeToggle').addEventListener('click', toggleTheme);
-      document.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'Enter') generateLink(); });
-      window.addEventListener('beforeunload', () => {
+      document.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'Enter') generateLink(); });      window.addEventListener('beforeunload', () => {
         const data = { name:$('name').value, role:$('role').value, img:$('img').value, yt:$('yt').value, tg:$('tg').value, about:$('about').value };
         localStorage.setItem('profileBuilderData', JSON.stringify(data));
       });
+      $('qrModal').addEventListener('click', e => { if (e.target === $('qrModal')) hideQR(); });
     });
   </script>
 </body>
