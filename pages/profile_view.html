@@ -43,23 +43,14 @@
       animation: cardLoad 0.5s ease; border: 1px solid var(--border);
       position: relative;
     }
-    @keyframes cardLoad {
-      from { opacity: 0; transform: translateY(32px) scale(0.98); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    .theme-toggle {      position: absolute; top: 20px; right: 20px;
+    @keyframes cardLoad { from { opacity: 0; transform: translateY(32px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .theme-toggle {
+      position: absolute; top: 20px; right: 20px;
       background: var(--border); border: none; width: 40px; height: 40px;
-      border-radius: 12px; cursor: pointer; display: flex; align-items: center;
-      justify-content: center; font-size: 18px; transition: all 0.2s;
+      border-radius: 12px; cursor: pointer; display: flex; align-items: center;      justify-content: center; font-size: 18px; transition: all 0.2s;
       color: var(--text-primary);
     }
     .theme-toggle:hover { background: var(--primary); color: white; transform: rotate(15deg); }
-    .skeleton {
-      background: linear-gradient(90deg, var(--border) 25%, var(--card-bg) 50%, var(--border) 75%);
-      background-size: 200% 100%; animation: shimmer 1.2s infinite;
-      border-radius: 8px;
-    }
-    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
     .profile-header { margin-bottom: 28px; }
     .profile-avatar {
       width: 112px; height: 112px; border-radius: 50%; margin: 0 auto 22px;
@@ -85,37 +76,18 @@
       font-weight: 600; font-size: 15px; transition: all 0.25s; color: white;
       position: relative; overflow: hidden;
     }
-    .link-btn::before {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.25), transparent);
-      opacity: 0; transition: opacity 0.25s;
-    }
+    .link-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.25), transparent); opacity: 0; transition: opacity 0.25s; }
     .link-btn:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.2); }
     .link-btn:hover::before { opacity: 1; }
     .link-btn:active { transform: translateY(-2px); }
     .yt-btn { background: linear-gradient(135deg, #ff0000, #cc0000); }
     .tg-btn { background: linear-gradient(135deg, #0088cc, #006699); }
-    .status-bar {
-      display: flex; align-items: center; justify-content: center; gap: 10px;      margin-top: 32px; font-size: 13px; color: var(--text-secondary);
-    }
-    .status-dot {
-      width: 9px; height: 9px; border-radius: 50%; background: var(--success);
-      animation: pulse 2s infinite; box-shadow: 0 0 0 0 rgba(34,197,94,0.5);
-    }
+    .status-bar { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 32px; font-size: 13px; color: var(--text-secondary); }
+    .status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; box-shadow: 0 0 0 0 rgba(34,197,94,0.5); }
     @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } }
-    .view-count {
-      background: var(--border); padding: 6px 14px; border-radius: 20px;
-      font-size: 12px; font-weight: 600; color: var(--text-secondary);
-    }
-    .error-state {
-      background: rgba(239,68,68,0.1); border: 2px solid rgba(239,68,68,0.3);
-      border-radius: var(--radius-sm); padding: 28px; text-align: center;
-      color: var(--error); font-size: 14px; line-height: 1.6;
-    }
-    .error-state code {
-      background: rgba(239,68,68,0.15); padding: 3px 8px; border-radius: 6px;
-      font-family: monospace; font-size: 12px;
-    }
+    .view-count { background: var(--border); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+    .error-state { background: rgba(239,68,68,0.1); border: 2px solid rgba(239,68,68,0.3); border-radius: var(--radius-sm); padding: 28px; text-align: center; color: var(--error); font-size: 14px; line-height: 1.6; }
+    .error-state code { background: rgba(239,68,68,0.15); padding: 3px 8px; border-radius: 6px; font-family: monospace; font-size: 12px; }
     .footer { margin-top: 36px; font-size: 12px; color: var(--text-secondary); }
     .loading { color: var(--text-secondary); font-style: italic; padding: 50px 20px; }
     .hidden { display: none !important; }
@@ -124,8 +96,7 @@
     @media (max-width: 640px) {
       .profile-card { padding: 36px 24px; }
       .profile-avatar { width: 96px; height: 96px; }
-      .profile-name { font-size: 22px; }
-      .link-btn { padding: 14px 18px; font-size: 14px; }
+      .profile-name { font-size: 22px; }      .link-btn { padding: 14px 18px; font-size: 14px; }
     }
     @media print {
       body { background: white; }
@@ -140,12 +111,12 @@
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌓</button>
     <p class="loading">Loading profile...</p>
   </div>
-
   <script>
     const $ = id => document.getElementById(id);
     const base64ToUtf8 = str => decodeURIComponent(escape(atob(str)));
     const escapeHtml = text => {
-      if (!text) return '';      const map = { '&': '&', '<': '<', '>': '>', '"': '"', "'": '&#039;' };
+      if (!text) return '';
+      const map = { '&': '&', '<': '<', '>': '>', '"': '"', "'": '&#039;' };
       return text.replace(/[&<>"']/g, m => map[m]);
     };
     const isValidUrl = str => { try { new URL(str); return true; } catch { return false; } };
@@ -174,8 +145,7 @@
         card.innerHTML = `<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌓</button><div class="error-state">❌ Profile data not found<br><small>URL must include <code>?a=...</code></small></div><div class="footer">Profile System</div>`;
         $('themeToggle').addEventListener('click', toggleTheme);
         return;
-      }
-      try {
+      }      try {
         const decoded = base64ToUtf8(encoded);
         const data = JSON.parse(decoded);
         const viewCount = incrementView();
@@ -194,10 +164,9 @@
         const links = [];
         if (data.yt && isValidUrl(data.yt)) links.push({ url: data.yt, text: '📺 YouTube', cls: 'yt-btn' });
         if (data.tg && isValidUrl(data.tg)) links.push({ url: data.tg, text: '✈️ Telegram', cls: 'tg-btn' });
-        if (links.length > 0) {          html += `<div class="links-section">`;
-          links.forEach((l, i) => {
-            html += `<a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="link-btn ${l.cls} fade-in" style="animation-delay:${0.15+i*0.05}s">${l.text}</a>`;
-          });
+        if (links.length > 0) {
+          html += `<div class="links-section">`;
+          links.forEach((l, i) => { html += `<a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="link-btn ${l.cls} fade-in" style="animation-delay:${0.15+i*0.05}s">${l.text}</a>`; });
           html += `</div>`;
         }
         html += `<div class="status-bar fade-in" style="animation-delay:0.3s"><span class="status-dot"></span><span>Active</span><span class="view-count">👁️ ${viewCount}</span></div>`;
