@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Precision Level | Bubble Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #111; color: #fff; font-family: system-ui, sans-serif; overflow: hidden; }
+        .level-container {
+            width: 300px;
+            height: 300px;
+            background: #222;
+            border: 8px solid #333;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5), 0 0 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .bubble {
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle at 30% 30%, #ccff00, #88aa00);
+            border-radius: 50%;
+            position: absolute;
+            transition: transform 0.1s ease-out;
+            box-shadow: 0 0 15px rgba(204, 255, 0, 0.5);
+        }
+        .crosshair {
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            position: absolute;
+        }
+        .is-level .bubble { background: radial-gradient(circle at 30% 30%, #00ff88, #008844); box-shadow: 0 0 25px rgba(0, 255, 136, 0.8); }
+        .is-level .level-container { border-color: #00ff8833; }
+    </style>
+</head>
+<body class="h-screen flex flex-col items-center justify-center p-6">
+
+    <div id="permissionScreen" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-8 text-center">
+        <h1 class="text-3xl font-bold mb-4 text-lime-400">Precision Leveler</h1>
+        <p class="text-slate-400 mb-8">This app requires access to your motion sensors to function.</p>
+        <button onclick="requestPermission()" class="px-8 py-4 bg-lime-500 text-black font-black rounded-2xl uppercase tracking-widest shadow-lg shadow-lime-500/20">Grant Access</button>
+    </div>
+
+    <div id="mainUI" class="flex flex-col items-center">
+        <div class="text-center mb-10">
+            <div id="degreeX" class="text-6xl font-black mb-2">0°</div>
+            <div class="text-xs uppercase tracking-widest text-slate-500 font-bold">Pitch & Roll</div>
+        </div>
+
+        <div id="container" class="level-container">
+            <div class="crosshair"></div>
+            <div class="w-[2px] h-full bg-white/5 absolute"></div>
+            <div class="w-full h-[2px] bg-white/5 absolute"></div>
+            <div id="bubble" class="bubble"></div>
+        </div>
+
+        <div class="mt-12 grid grid-cols-2 gap-10 text-center">
+            <div>
+                <div id="valX" class="text-xl font-bold text-lime-400">0.0</div>
+                <div class="text-[10px] text-slate-500 uppercase">X-Axis</div>
+            </div>
+            <div>
+                <div id="valY" class="text-xl font-bold text-lime-400">0.0</div>
+                <div class="text-[10px] text-slate-500 uppercase">Y-Axis</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const bubble = document.getElementById('bubble');
+        const container = document.getElementById('container');
+        const degreeDisplay = document.getElementById('degreeX');
+        const valXDisplay = document.getElementById('valX');
+        const valYDisplay = document.getElementById('valY');
+
+        function requestPermission() {
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            initSensors();
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                // Non-iOS 13+ devices
+                initSensors();
+            }
+        }
+
+        function initSensors() {
+            document.getElementById('permissionScreen').style.display = 'none';
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
+
+        function handleOrientation(event) {
+            // beta: front-back tilt (-180 to 180)
+            // gamma: left-right tilt (-90 to 90)
+            let x = event.gamma; 
+            let y = event.beta; 
+
+            // Constraints for the UI
+            const maxTilt = 45;
+            const containerRadius = 130; // Half of container width minus bubble
+
+            // Update Displays
+            valXDisplay.innerText = x.toFixed(1) + '°';
+            valYDisplay.innerText = y.toFixed(1) + '°';
+            
+            // Calculate visual position
+            let moveX = (x / maxTilt) * containerRadius;
+            let moveY = (y / maxTilt) * containerRadius;
+
+            // Clamp to circle
+            const distance = Math.sqrt(moveX*moveX + moveY*moveY);
+            if (distance > containerRadius) {
+                const angle = Math.atan2(moveY, moveX);
+                moveX = Math.cos(angle) * containerRadius;
+                moveY = Math.sin(angle) * containerRadius;
+            }
+
+            bubble.style.transform = `translate(${moveX}px, ${moveY}px)`;
+
+            // Check if level
+            const isLevel = Math.abs(x) < 1 && Math.abs(y) < 1;
+            if (isLevel) {
+                container.classList.add('is-level');
+                degreeDisplay.innerText = "LEVEL";
+                degreeDisplay.classList.add('text-lime-400');
+                if (window.navigator.vibrate) window.navigator.vibrate(50);
+            } else {
+                container.classList.remove('is-level');
+                degreeDisplay.innerText = Math.max(Math.abs(x), Math.abs(y)).toFixed(0) + "°";
+                degreeDisplay.classList.remove('text-lime-400');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud-Z File Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #e0e5ec;
+            --shadow-light: #ffffff;
+            --shadow-dark: #a3b1c6;
+            --primary: #6d5dfc;
+            --text: #444;
+            --danger: #ff7675;
+            --folder-color: #ffbd44;
+        }
+
+        .dark-mode {
+            --bg: #1e2124;
+            --shadow-light: #2a2d31;
+            --shadow-dark: #121416;
+            --text: #dfe6e9;
+            --primary: #a29bfe;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            padding: 20px;
+            transition: 0.4s;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg);
+            border-radius: 30px;
+            padding: 30px 20px;
+            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+            display: flex;
+            flex-direction: column;
+            margin-right: 30px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+        }
+
+        /* Main Content */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .search-box {
+            background: var(--bg);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+            width: 300px;
+            outline: none;
+            color: var(--text);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: 15px;
+            border: none;
+            background: var(--bg);
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:active {
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+        }
+
+        .btn-primary { color: var(--primary); }
+
+        /* File Area */
+        .file-manager {
+            flex: 1;
+            background: var(--bg);
+            border-radius: 40px;
+            padding: 30px;
+            box-shadow: inset 10px 10px 20px var(--shadow-dark), inset -10px -10px 20px var(--shadow-light);
+            overflow-y: auto;
+        }
+
+        .breadcrumbs {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 8px;
+            font-weight: 700;
+            opacity: 0.7;
+        }
+
+        .breadcrumb-item { cursor: pointer; transition: 0.2s; }
+        .breadcrumb-item:hover { color: var(--primary); }
+
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 25px;
+        }
+
+        .item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 20px;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .item:hover {
+            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+        }
+
+        .item-icon {
+            font-size: 3rem;
+        }
+
+        .item-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            word-break: break-all;
+            max-width: 100px;
+        }
+
+        /* Context Menu */
+        #context-menu {
+            position: fixed;
+            background: var(--bg);
+            box-shadow: 10px 10px 20px var(--shadow-dark), -2px -2px 10px var(--shadow-light);
+            border-radius: 15px;
+            padding: 10px;
+            display: none;
+            z-index: 1000;
+            width: 160px;
+        }
+
+        .menu-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .menu-option:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Storage bar */
+        .storage-card {
+            margin-top: auto;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+        }
+
+        .progress-bg {
+            height: 8px;
+            background: #ccc;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 40%;
+        }
+
+        /* Preview Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: var(--bg);
+            padding: 30px;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 20px 20px 60px rgba(0,0,0,0.3);
+        }
+
+        input.modal-input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 15px;
+            border: none;
+            background: var(--bg);
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+            outline: none;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; padding: 10px; }
+            .sidebar { width: 100%; margin: 0 0 20px 0; padding: 15px; }
+            .search-box { width: 150px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo"><span>📁</span> Cloud-Z</div>
+        
+        <div class="nav-item active" onclick="navigate('root')">🏠 Home</div>
+        <div class="nav-item">⭐️ Favorites</div>
+        <div class="nav-item">🕒 Recent</div>
+        <div class="nav-item" onclick="toggleDarkMode()">🌓 Dark Mode</div>
+
+        <div class="storage-card">
+            <div style="font-size: 0.8rem; font-weight: 700;">Storage</div>
+            <div class="progress-bg"><div class="progress-fill" id="storageBar"></div></div>
+            <div style="font-size: 0.7rem; opacity: 0.7;" id="storageText">0 KB / 5 MB</div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="top-bar">
+            <input type="text" class="search-box" placeholder="Search files..." id="searchInp" oninput="renderFiles()">
+            <div class="action-btns">
+                <button class="btn btn-primary" onclick="showModal('folder')">➕ Folder</button>
+                <button class="btn" onclick="document.getElementById('fileInp').click()">⬆️ Upload</button>
+                <input type="file" id="fileInp" style="display:none" onchange="handleUpload(event)">
+            </div>
+        </div>
+
+        <div class="file-manager" id="dropZone">
+            <div class="breadcrumbs" id="breadcrumb">
+                <span class="breadcrumb-item">Root</span>
+            </div>
+            
+            <div class="file-grid" id="fileGrid">
+                <!-- Files rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="context-menu">
+        <div class="menu-option" onclick="handleRename()">✏️ Rename</div>
+        <div class="menu-option" onclick="handleDownload()">⬇️ Download</div>
+        <div class="menu-option" style="color:var(--danger)" onclick="handleDelete()">🗑️ Delete</div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">New Folder</h3>
+            <input type="text" class="modal-input" id="modalInput" placeholder="Enter name...">
+            <div style="display:flex; gap:10px; justify-content: flex-end;">
+                <button class="btn" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmModal()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Virtual File System State
+        let fs = JSON.parse(localStorage.getItem('cloud_vfs')) || [
+            { id: 'root', name: 'Root', isFolder: true, parent: null }
+        ];
+        let currentFolderId = 'root';
+        let selectedItemId = null;
+        let modalMode = 'folder';
+
+        const fileGrid = document.getElementById('fileGrid');
+        const contextMenu = document.getElementById('context-menu');
+
+        // Render Function
+        function renderFiles() {
+            const searchQuery = document.getElementById('searchInp').value.toLowerCase();
+            fileGrid.innerHTML = '';
+
+            const currentFiles = fs.filter(item => 
+                item.parent === currentFolderId && 
+                item.name.toLowerCase().includes(searchQuery)
+            );
+
+            currentFiles.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `
+                    <div class="item-icon">${item.isFolder ? '📂' : getFileIcon(item.name)}</div>
+                    <div class="item-name">${item.name}</div>
+                `;
+                
+                div.onclick = () => {
+                    if(item.isFolder) navigate(item.id);
+                    else previewFile(item);
+                };
+
+                div.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    showContextMenu(e, item.id);
+                };
+
+                fileGrid.appendChild(div);
+            });
+
+            updateBreadcrumbs();
+            updateStorage();
+            save();
+        }
+
+        function getFileIcon(name) {
+            const ext = name.split('.').pop().toLowerCase();
+            if(['jpg','png','gif'].includes(ext)) return '🖼️';
+            if(['mp4','mov'].includes(ext)) return '🎬';
+            if(['pdf'].includes(ext)) return '📕';
+            return '📄';
+        }
+
+        // Navigation
+        function navigate(id) {
+            currentFolderId = id;
+            renderFiles();
+        }
+
+        function updateBreadcrumbs() {
+            const bc = document.getElementById('breadcrumb');
+            bc.innerHTML = '';
+            let path = [];
+            let curr = fs.find(f => f.id === currentFolderId);
+            
+            while(curr) {
+                path.unshift(curr);
+                curr = fs.find(f => f.id === curr.parent);
+            }
+
+            path.forEach((p, idx) => {
+                const span = document.createElement('span');
+                span.className = 'breadcrumb-item';
+                span.innerText = p.name + (idx < path.length - 1 ? '  /  ' : '');
+                span.onclick = () => navigate(p.id);
+                bc.appendChild(span);
+            });
+        }
+
+        // Modal Logic
+        function showModal(mode) {
+            modalMode = mode;
+            document.getElementById('modalTitle').innerText = mode === 'folder' ? 'New Folder' : 'Rename Item';
+            document.getElementById('modalInput').value = '';
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function confirmModal() {
+            const val = document.getElementById('modalInput').value;
+            if(!val) return;
+
+            if(modalMode === 'folder') {
+                fs.push({
+                    id: Date.now().toString(),
+                    name: val,
+                    isFolder: true,
+                    parent: currentFolderId
+                });
+            } else if(modalMode === 'rename') {
+                const item = fs.find(f => f.id === selectedItemId);
+                if(item) item.name = val;
+            }
+
+            closeModal();
+            renderFiles();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // File Operations
+        function handleUpload(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                fs.push({
+                    id: Date.now().toString(),
+                    name: file.name,
+                    isFolder: false,
+                    parent: currentFolderId,
+                    size: file.size,
+                    content: event.target.result // Base64
+                });
+                renderFiles();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleDelete() {
+            fs = fs.filter(f => f.id !== selectedItemId);
+            contextMenu.style.display = 'none';
+            renderFiles();
+        }
+
+        function handleRename() {
+            contextMenu.style.display = 'none';
+            showModal('rename');
+        }
+
+        function handleDownload() {
+            const item = fs.find(f => f.id === selectedItemId);
+            if(item && !item.isFolder) {
+                const link = document.createElement('a');
+                link.href = item.content;
+                link.download = item.name;
+                link.click();
+            }
+            contextMenu.style.display = 'none';
+        }
+
+        // Context Menu Utility
+        function showContextMenu(e, id) {
+            selectedItemId = id;
+            contextMenu.style.display = 'block';
+            contextMenu.style.top = e.pageY + 'px';
+            contextMenu.style.left = e.pageX + 'px';
+        }
+
+        window.onclick = () => contextMenu.style.display = 'none';
+
+        // Storage & Persistance
+        function save() {
+            localStorage.setItem('cloud_vfs', JSON.stringify(fs));
+        }
+
+        function updateStorage() {
+            const total = 5 * 1024 * 1024; // 5MB Limit
+            const used = JSON.stringify(fs).length;
+            const perc = (used / total) * 100;
+            document.getElementById('storageBar').style.width = perc + '%';
+            document.getElementById('storageText').innerText = `${(used/1024).toFixed(1)} KB / 5 MB`;
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function previewFile(item) {
+            if(item.name.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                const win = window.open("");
+                win.document.write(`<img src="${item.content}" style="max-width:100%">`);
+            } else {
+                alert(`File: ${item.name}\nSize: ${(item.size/1024).toFixed(2)} KB`);
+            }
+        }
+
+        // Initial Boot
+        renderFiles();
+    </script>
+</body>
+</html>

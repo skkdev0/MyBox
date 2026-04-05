@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceScript | Speech to Text</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; }
+        .mic-shadow { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+        .recording .mic-shadow { animation: pulse 1.5s infinite; background: #ef4444; }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-6">
+
+    <div class="w-full max-w-4xl mt-10">
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tighter">Voice<span class="text-indigo-500">Script</span></h1>
+                <p class="text-slate-400 text-sm">Real-time AI Transcription</p>
+            </div>
+            <select id="langSelect" class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 ring-indigo-500">
+                <option value="en-US">English (US)</option>
+                <option value="en-GB">English (UK)</option>
+                <option value="es-ES">Spanish</option>
+                <option value="fr-FR">French</option>
+                <option value="hi-IN">Hindi</option>
+            </select>
+        </header>
+
+        <div class="glass rounded-[2rem] p-8 mb-6 relative">
+            <div id="output" class="min-h-[300px] max-h-[500px] overflow-y-auto text-xl leading-relaxed text-slate-200 whitespace-pre-wrap" placeholder="Transcription will appear here...">Click the microphone to start speaking...</div>
+            
+            <div class="absolute bottom-6 right-8 flex gap-4 text-xs font-bold uppercase tracking-widest text-slate-500">
+                <span>Words: <span id="wordCount" class="text-indigo-400">0</span></span>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-6">
+            <button id="micBtn" class="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center transition-all mic-shadow">
+                <svg id="micIcon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+            </button>
+            
+            <div class="flex gap-4">
+                <button onclick="copyText()" class="px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-full text-sm font-semibold transition">Copy Text</button>
+                <button onclick="clearText()" class="px-6 py-2 bg-slate-800 hover:bg-red-900/30 hover:text-red-400 rounded-full text-sm font-semibold transition">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const micBtn = document.getElementById('micBtn');
+        const output = document.getElementById('output');
+        const wordCount = document.getElementById('wordCount');
+        const langSelect = document.getElementById('langSelect');
+
+        let recognition;
+        let isRecording = false;
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+                
+                if(finalTranscript) {
+                    if(output.innerText === "Click the microphone to start speaking...") output.innerText = "";
+                    output.innerText += finalTranscript + " ";
+                }
+                
+                updateStats();
+            };
+
+            recognition.onend = () => {
+                if(isRecording) recognition.start(); // Auto-restart if it times out
+            };
+
+        } else {
+            output.innerText = "Speech recognition not supported in this browser.";
+            micBtn.disabled = true;
+        }
+
+        micBtn.onclick = () => {
+            if (!isRecording) {
+                recognition.lang = langSelect.value;
+                recognition.start();
+                isRecording = true;
+                micBtn.classList.add('recording');
+            } else {
+                recognition.stop();
+                isRecording = false;
+                micBtn.classList.remove('recording');
+            }
+        };
+
+        function updateStats() {
+            const text = output.innerText.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            wordCount.innerText = words;
+        }
+
+        function clearText() {
+            output.innerText = "Click the microphone to start speaking...";
+            wordCount.innerText = "0";
+        }
+
+        function copyText() {
+            navigator.clipboard.writeText(output.innerText);
+            alert("Copied to clipboard!");
+        }
+    </script>
+</body>
+</html>

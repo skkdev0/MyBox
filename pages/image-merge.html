@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelStitch Pro | Advanced Image Merger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        #canvas-container { min-height: 400px; background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px; }
+        .tool-card { transition: all 0.2s; border-left: 3px solid transparent; }
+        .tool-card:hover { border-left: 3px solid #3b82f6; background: rgba(59, 130, 246, 0.05); }
+        input[type="range"] { accent-color: #3b82f6; }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <!-- Header -->
+    <header class="h-16 border-b border-slate-800 flex items-center justify-between px-6 shrink-0 bg-slate-900">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white">P</div>
+            <h1 class="text-xl font-bold tracking-tight">PixelStitch <span class="text-blue-500 text-sm font-medium">PRO</span></h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <select id="exportFormat" class="bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-sm outline-none focus:border-blue-500">
+                <option value="image/png">PNG</option>
+                <option value="image/jpeg">JPG</option>
+                <option value="image/webp">WEBP</option>
+            </select>
+            <button onclick="downloadImage()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-1.5 rounded-lg font-semibold transition flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export Result
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden">
+        <!-- Sidebar Controls -->
+        <aside class="w-80 border-r border-slate-800 flex flex-col overflow-y-auto custom-scrollbar bg-slate-900/50">
+            
+            <!-- Upload Section -->
+            <div class="p-4 border-b border-slate-800">
+                <label class="block w-full cursor-pointer bg-slate-800 hover:bg-slate-750 border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-xl p-6 text-center transition" id="dropzone">
+                    <input type="file" id="imageInput" multiple accept="image/*" class="hidden">
+                    <svg class="mx-auto mb-2 text-slate-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span class="text-sm font-medium">Add Images</span>
+                    <span class="block text-xs text-slate-500 mt-1">Drag and drop or click</span>
+                </label>
+            </div>
+
+            <!-- Settings Accordion -->
+            <div class="flex-1">
+                <!-- Layout Mode -->
+                <div class="p-4 border-b border-slate-800 tool-card">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Layout Strategy</h3>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="updateLayout('v')" class="layout-btn bg-blue-600 p-2 rounded text-xs">Vertical</button>
+                        <button onclick="updateLayout('h')" class="layout-btn bg-slate-800 p-2 rounded text-xs">Horizontal</button>
+                        <button onclick="updateLayout('g')" class="layout-btn bg-slate-800 p-2 rounded text-xs">Grid</button>
+                    </div>
+                </div>
+
+                <!-- Spacing & Canvas -->
+                <div class="p-4 border-b border-slate-800 tool-card">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Canvas Styling</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span>Gap Spacing</span><span id="gapVal">10px</span></div>
+                            <input type="range" id="gap" min="0" max="100" value="10" class="w-full">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span>Border Radius</span><span id="radiusVal">0px</span></div>
+                            <input type="range" id="radius" min="0" max="100" value="0" class="w-full">
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <label class="text-xs block mb-1">BG Color</label>
+                                <input type="color" id="bgColor" value="#0f172a" class="w-full h-8 bg-transparent border-none">
+                            </div>
+                            <div class="flex-1">
+                                <label class="text-xs block mb-1">Border</label>
+                                <input type="color" id="borderColor" value="#3b82f6" class="w-full h-8 bg-transparent border-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Effects -->
+                <div class="p-4 border-b border-slate-800 tool-card">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Image Effects</h3>
+                    <div class="space-y-3">
+                        <select id="filter" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs">
+                            <option value="none">No Filter</option>
+                            <option value="grayscale(100%)">Black & White</option>
+                            <option value="sepia(100%)">Vintage Sepia</option>
+                            <option value="invert(100%)">Invert Colors</option>
+                            <option value="blur(4px)">Soft Blur</option>
+                        </select>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span>Shadow Intensity</span><span id="shadowVal">0</span></div>
+                            <input type="range" id="shadow" min="0" max="50" value="0" class="w-full">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Watermark -->
+                <div class="p-4 border-b border-slate-800 tool-card">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Watermark</h3>
+                    <input type="text" id="wmText" placeholder="Enter text..." class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs mb-2">
+                    <div class="flex justify-between text-xs mb-1"><span>Opacity</span></div>
+                    <input type="range" id="wmOpacity" min="0" max="100" value="50" class="w-full">
+                </div>
+            </div>
+        </aside>
+
+        <!-- Preview Area -->
+        <section class="flex-1 bg-slate-950 p-8 overflow-auto flex flex-col items-center justify-start custom-scrollbar">
+            <div id="canvas-container" class="relative shadow-2xl rounded-sm overflow-hidden flex items-center justify-center">
+                <canvas id="mainCanvas"></canvas>
+            </div>
+
+            <!-- Image List / Layer Management -->
+            <div class="mt-8 w-full max-w-4xl">
+                <h3 class="text-sm font-semibold mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                    Manage Image Layers
+                </h3>
+                <div id="imageList" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Dynamic Items -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+        const imageInput = document.getElementById('imageInput');
+        const imageList = document.getElementById('imageList');
+        
+        let images = []; // Array of {img, id}
+        let layoutMode = 'v'; // v, h, g
+
+        // State listeners
+        const controls = ['gap', 'radius', 'bgColor', 'borderColor', 'filter', 'shadow', 'wmText', 'wmOpacity'];
+        controls.forEach(id => {
+            document.getElementById(id).addEventListener('input', render);
+        });
+
+        imageInput.addEventListener('change', handleUpload);
+
+        function handleUpload(e) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        images.push({
+                            id: Date.now() + Math.random(),
+                            img: img,
+                            name: file.name
+                        });
+                        updateUIList();
+                        render();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function updateLayout(mode) {
+            layoutMode = mode;
+            document.querySelectorAll('.layout-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600');
+                btn.classList.add('bg-slate-800');
+            });
+            event.target.classList.replace('bg-slate-800', 'bg-blue-600');
+            render();
+        }
+
+        function updateUIList() {
+            imageList.innerHTML = '';
+            images.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'glass p-3 rounded-xl flex items-center gap-4';
+                div.innerHTML = `
+                    <img src="${item.img.src}" class="w-12 h-12 object-cover rounded shadow">
+                    <div class="flex-1 truncate text-xs font-medium">${item.name}</div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="move(${index}, -1)" class="p-1 hover:bg-slate-700 rounded">↑</button>
+                        <button onclick="move(${index}, 1)" class="p-1 hover:bg-slate-700 rounded">↓</button>
+                        <button onclick="removeImg(${index})" class="p-1 hover:bg-red-900/40 text-red-400 rounded">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                        </button>
+                    </div>
+                `;
+                imageList.appendChild(div);
+            });
+        }
+
+        function move(index, step) {
+            if (index + step < 0 || index + step >= images.length) return;
+            const temp = images[index];
+            images[index] = images[index + step];
+            images[index + step] = temp;
+            updateUIList();
+            render();
+        }
+
+        function removeImg(index) {
+            images.splice(index, 1);
+            updateUIList();
+            render();
+        }
+
+        function render() {
+            if (images.length === 0) {
+                canvas.width = 0; canvas.height = 0;
+                return;
+            }
+
+            const gap = parseInt(document.getElementById('gap').value);
+            const radius = parseInt(document.getElementById('radius').value);
+            const shadow = parseInt(document.getElementById('shadow').value);
+            const bgColor = document.getElementById('bgColor').value;
+            const filter = document.getElementById('filter').value;
+            const wmText = document.getElementById('wmText').value;
+
+            document.getElementById('gapVal').innerText = gap + 'px';
+            document.getElementById('radiusVal').innerText = radius + 'px';
+            document.getElementById('shadowVal').innerText = shadow;
+
+            // Simple Vertical Layout Logic
+            let totalW = 0, totalH = 0;
+            
+            if (layoutMode === 'v') {
+                totalW = Math.max(...images.map(i => i.img.width)) + (gap * 2);
+                totalH = images.reduce((acc, i) => acc + i.img.height, 0) + (gap * (images.length + 1));
+            } else if (layoutMode === 'h') {
+                totalW = images.reduce((acc, i) => acc + i.img.width, 0) + (gap * (images.length + 1));
+                totalH = Math.max(...images.map(i => i.img.height)) + (gap * 2);
+            } else { // Grid (2 columns fixed for demo)
+                const cols = 2;
+                const rows = Math.ceil(images.length / cols);
+                totalW = (Math.max(...images.map(i => i.img.width)) * cols) + (gap * (cols + 1));
+                totalH = (Math.max(...images.map(i => i.img.height)) * rows) + (gap * (rows + 1));
+            }
+
+            canvas.width = totalW;
+            canvas.height = totalH;
+
+            // Draw Background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            let currentX = gap;
+            let currentY = gap;
+
+            images.forEach((item, idx) => {
+                ctx.save();
+                
+                // Filters
+                ctx.filter = filter;
+
+                // Shadow
+                if (shadow > 0) {
+                    ctx.shadowColor = "rgba(0,0,0,0.5)";
+                    ctx.shadowBlur = shadow;
+                    ctx.shadowOffsetY = shadow/2;
+                }
+
+                // Rounded Rect Path
+                const x = currentX;
+                const y = currentY;
+                const w = item.img.width;
+                const h = item.img.height;
+
+                ctx.beginPath();
+                ctx.roundRect(x, y, w, h, radius);
+                ctx.clip();
+                ctx.drawImage(item.img, x, y);
+                
+                ctx.restore();
+
+                // Increment positions
+                if (layoutMode === 'v') {
+                    currentY += h + gap;
+                } else if (layoutMode === 'h') {
+                    currentX += w + gap;
+                } else {
+                    if ((idx + 1) % 2 === 0) {
+                        currentX = gap;
+                        currentY += h + gap;
+                    } else {
+                        currentX += w + gap;
+                    }
+                }
+            });
+
+            // Watermark
+            if (wmText) {
+                ctx.font = "bold 40px Inter";
+                ctx.fillStyle = `rgba(255,255,255, ${document.getElementById('wmOpacity').value / 100})`;
+                ctx.textAlign = "center";
+                ctx.fillText(wmText, canvas.width/2, canvas.height - 30);
+            }
+        }
+
+        function downloadImage() {
+            const format = document.getElementById('exportFormat').value;
+            const link = document.createElement('a');
+            link.download = `pixelstitch-export.${format.split('/')[1]}`;
+            link.href = canvas.toDataURL(format, 0.9);
+            link.click();
+        }
+
+        // Drag and Drop implementation
+        const dropzone = document.getElementById('dropzone');
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('border-blue-500'); });
+        dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('border-blue-500'); });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('border-blue-500');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleUpload({ target: { files } });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neumorphic Text Hub Ultra</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #e0e5ec;
+            --shadow-light: #ffffff;
+            --shadow-dark: #a3b1c6;
+            --primary: #6d5dfc;
+            --text: #444;
+            --accent: #55efc4;
+            --danger: #ff7675;
+        }
+
+        .dark-mode {
+            --bg: #2d3436;
+            --shadow-light: #3b4446;
+            --shadow-dark: #1e2324;
+            --text: #dfe6e9;
+            --primary: #a29bfe;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+            /* Added as requested */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            transition: all 0.4s ease;
+        }
+
+        /* Prevent text selection on UI elements only */
+        h1, .stat-box, button, label, .tab-btn {
+            user-select: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            background: var(--bg);
+            padding: 30px;
+            border-radius: 40px;
+            box-shadow: 20px 20px 60px var(--shadow-dark), -20px -20px 60px var(--shadow-light);
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: 800;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: var(--primary);
+            letter-spacing: -1px;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            padding: 12px;
+            text-align: center;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+        }
+
+        .stat-box span { color: var(--primary); }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 220px;
+            background: var(--bg);
+            border: none;
+            border-radius: 20px;
+            padding: 20px;
+            font-size: 1rem;
+            color: var(--text);
+            box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+            outline: none;
+            resize: none;
+            transition: 0.3s;
+        }
+
+        textarea:focus {
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+        }
+
+        /* Tabs System */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            padding: 8px 18px;
+            border-radius: 10px;
+            background: var(--bg);
+            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+            cursor: pointer;
+            border: none;
+            color: var(--text);
+            white-space: nowrap;
+            font-weight: 700;
+        }
+
+        .tab-btn.active {
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            color: var(--primary);
+        }
+
+        /* Controls Grid */
+        .controls-wrapper {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 25px;
+            box-shadow: inset 4px 4px 10px var(--shadow-dark), inset -4px -4px 10px var(--shadow-light);
+        }
+
+        .feature-group {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .feature-group.active { display: grid; }
+
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 12px;
+            background: var(--bg);
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        button:hover { transform: translateY(-2px); }
+
+        button:active {
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            transform: translateY(0);
+        }
+
+        .btn-accent { color: var(--accent); font-weight: 800; }
+        .btn-danger { color: var(--danger); }
+        .btn-primary { color: var(--primary); }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            z-index: 100;
+        }
+
+        @media (max-width: 850px) {
+            .main-layout { grid-template-columns: 1fr; }
+            .container { padding: 15px; border-radius: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+
+    <div class="container">
+        <h1>Text Hub Pro</h1>
+
+        <div class="stats-bar">
+            <div class="stat-box">Chars: <span id="charCount">0</span></div>
+            <div class="stat-box">Words: <span id="wordCount">0</span></div>
+            <div class="stat-box">Lines: <span id="lineCount">0</span></div>
+            <div class="stat-box">Reading: <span id="readTime">0</span>s</div>
+        </div>
+
+        <div class="main-layout">
+            <div>
+                <label style="display:block; margin-bottom:8px; font-weight:700; opacity:0.7;">Source Text</label>
+                <textarea id="inputText" placeholder="Paste your text here..."></textarea>
+            </div>
+            <div>
+                <label style="display:block; margin-bottom:8px; font-weight:700; opacity:0.7;">Processed Result</label>
+                <textarea id="outputText" readonly placeholder="Result will appear here..."></textarea>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab-btn active" onclick="showTab('case')">Case / Basic</div>
+            <div class="tab-btn" onclick="showTab('clean')">Clean / Fix</div>
+            <div class="tab-btn" onclick="showTab('encode')">Encode / Crypto</div>
+            <div class="tab-btn" onclick="showTab('fun')">Fun / Weird</div>
+            <div class="tab-btn" onclick="showTab('gen')">Generators</div>
+            <div class="tab-btn" onclick="showTab('actions')" style="color: var(--accent)">Actions</div>
+        </div>
+
+        <div class="controls-wrapper">
+            <!-- GROUP 1: CASE & BASIC -->
+            <div id="case" class="feature-group active">
+                <button onclick="run('upper')" class="btn-primary">UPPERCASE</button>
+                <button onclick="run('lower')">lowercase</button>
+                <button onclick="run('capitalize')">Capitalize</button>
+                <button onclick="run('sentence')">Sentence case</button>
+                <button onclick="run('title')">Title Case</button>
+                <button onclick="run('inverseCase')">iNVERSE cASE</button>
+                <button onclick="run('altCase')">AlTeRnAtInG</button>
+                <button onclick="run('reverseAll')">🔄 Reverse All</button>
+                <button onclick="run('reverseWords')">📑 Reverse Words</button>
+            </div>
+
+            <!-- GROUP 2: CLEANING -->
+            <div id="clean" class="feature-group">
+                <button onclick="run('cleanSpaces')">🧼 Extra Spaces</button>
+                <button onclick="run('removeNumbers')">🚫 No Numbers</button>
+                <button onclick="run('removeSymbols')">🚫 No Symbols</button>
+                <button onclick="run('removeEmojis')">🚫 No Emojis</button>
+                <button onclick="run('removeLines')">🚫 No NewLines</button>
+                <button onclick="run('trimLines')">✂️ Trim Lines</button>
+                <button onclick="run('sortLines')">🔢 Sort Lines</button>
+                <button onclick="run('uniqueWords')">💎 Unique Words</button>
+            </div>
+
+            <!-- GROUP 3: ENCODING -->
+            <div id="encode" class="feature-group">
+                <button onclick="run('toBinary')">0101 Binary</button>
+                <button onclick="run('toBase64')">📦 Base64 Enc</button>
+                <button onclick="run('fromBase64')">🔓 Base64 Dec</button>
+                <button onclick="run('toMorse')">··−− Morse</button>
+                <button onclick="run('toRot13')">🌀 ROT13</button>
+                <button onclick="run('urlEnc')">🌐 URL Encode</button>
+                <button onclick="run('urlDec')">🌐 URL Decode</button>
+                <button onclick="run('toHex')">#️⃣ Hex Code</button>
+            </div>
+
+            <!-- GROUP 4: FUN / WEIRD -->
+            <div id="fun" class="feature-group">
+                <button onclick="run('flipText')">🙃 Upside Down</button>
+                <button onclick="run('toSpongebob')">Mocking Text</button>
+                <button onclick="run('toZalgo')">😈 Zalgo</button>
+                <button onclick="run('toVaporwave')">Ｖａｐｏｒ</button>
+                <button onclick="run('toLeet')">1337 Speak</button>
+                <button onclick="run('toMirror')">🪞 Mirror Text</button>
+            </div>
+
+            <!-- GROUP 5: GENERATORS -->
+            <div id="gen" class="feature-group">
+                <button onclick="run('genPass')" class="btn-accent">🔑 Password</button>
+                <button onclick="run('genLorem')">📜 Lorem Ipsum</button>
+                <button onclick="run('genUuid')">🆔 UUID Gen</button>
+                <button onclick="run('genNumber')">🎲 Random Num</button>
+            </div>
+
+            <!-- GROUP 6: ACTIONS -->
+            <div id="actions" class="feature-group">
+                <button onclick="run('copy')" class="btn-accent">📋 Copy Result</button>
+                <button onclick="run('speak')">🔊 Listen</button>
+                <button onclick="run('download')">💾 Save .txt</button>
+                <button onclick="run('clearText')" class="btn-danger">🗑️ Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const input = document.getElementById('inputText');
+        const output = document.getElementById('outputText');
+
+        // TAB SYSTEM
+        function showTab(tabId) {
+            document.querySelectorAll('.feature-group').forEach(g => g.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // STATS LOGIC
+        input.addEventListener('input', updateStats);
+        function updateStats() {
+            const val = input.value;
+            document.getElementById('charCount').innerText = val.length;
+            const words = val.trim() ? val.trim().split(/\s+/).length : 0;
+            document.getElementById('wordCount').innerText = words;
+            document.getElementById('lineCount').innerText = val.split('\n').filter(l => l!=='').length;
+            document.getElementById('readTime').innerText = Math.round(words / 200 * 60);
+        }
+
+        // CENTRAL PROCESSOR
+        function run(action) {
+            const val = input.value;
+            let result = "";
+
+            switch(action) {
+                // CASE
+                case 'upper': result = val.toUpperCase(); break;
+                case 'lower': result = val.toLowerCase(); break;
+                case 'capitalize': result = val.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' '); break;
+                case 'sentence': result = val.toLowerCase().replace(/(^\s*\w|[\.\!\?]\s*\w)/g, c => c.toUpperCase()); break;
+                case 'title': result = val.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()); break;
+                case 'altCase': result = val.split('').map((c,i) => i%2==0 ? c.toUpperCase() : c.toLowerCase()).join(''); break;
+                case 'inverseCase': result = val.split('').map(c => c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase()).join(''); break;
+                
+                // REVERSALS
+                case 'reverseAll': result = val.split('').reverse().join(''); break;
+                case 'reverseWords': result = val.split(/\s+/).reverse().join(' '); break;
+
+                // CLEANING
+                case 'cleanSpaces': result = val.replace(/\s+/g, ' ').trim(); break;
+                case 'removeNumbers': result = val.replace(/[0-9]/g, ''); break;
+                case 'removeSymbols': result = val.replace(/[^a-zA-Z0-9\s]/g, ''); break;
+                case 'removeEmojis': result = val.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''); break;
+                case 'removeLines': result = val.replace(/\n/g, ' '); break;
+                case 'trimLines': result = val.split('\n').map(l => l.trim()).join('\n'); break;
+                case 'sortLines': result = val.split('\n').sort().join('\n'); break;
+                case 'uniqueWords': result = [...new Set(val.split(/\s+/))].join(' '); break;
+
+                // ENCODING
+                case 'toBinary': result = val.split('').map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join(' '); break;
+                case 'toBase64': result = btoa(val); break;
+                case 'fromBase64': try { result = atob(val); } catch(e) { alert("Invalid Base64"); } break;
+                case 'urlEnc': result = encodeURIComponent(val); break;
+                case 'urlDec': result = decodeURIComponent(val); break;
+                case 'toHex': result = val.split('').map(c => c.charCodeAt(0).toString(16)).join(' '); break;
+                case 'toRot13': result = val.replace(/[a-zA-Z]/g, c => String.fromCharCode((c <= 'Z' ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26)); break;
+
+                // FUN
+                case 'toSpongebob': result = val.split('').map(c => Math.random() > 0.5 ? c.toUpperCase() : c.toLowerCase()).join(''); break;
+                case 'toVaporwave': result = val.split('').map(c => c === ' ' ? '  ' : String.fromCharCode(c.charCodeAt(0) + 0xFEE0)).join(''); break;
+                case 'toLeet': 
+                    const map = {'a':'4','e':'3','i':'1','o':'0','s':'5','t':'7'};
+                    result = val.toLowerCase().split('').map(c => map[c] || c).join('');
+                    break;
+                case 'flipText':
+                    const flipMap = {"a":"ɐ","b":"q","c":"ɔ","d":"p","e":"ǝ","f":"ɟ","g":"ƃ","h":"ɥ","i":"ᴉ","j":"ɾ","k":"ʞ","l":"l","m":"ɯ","n":"u","o":"o","p":"d","q":"b","r":"ɹ","s":"s","t":"ʇ","u":"n","v":"ʌ","w":"ʍ","x":"x","y":"ʎ","z":"z"};
+                    result = val.toLowerCase().split('').reverse().map(c => flipMap[c] || c).join('');
+                    break;
+
+                // GENERATORS
+                case 'genPass': result = Math.random().toString(36).slice(-10) + Math.random().toString(36).toUpperCase().slice(-5); break;
+                case 'genLorem': result = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."; break;
+                case 'genUuid': result = crypto.randomUUID(); break;
+
+                // UTILS
+                case 'copy': navigator.clipboard.writeText(output.value); return;
+                case 'speak': window.speechSynthesis.speak(new SpeechSynthesisUtterance(output.value)); return;
+                case 'clearText': input.value = ""; output.value = ""; updateStats(); return;
+                case 'download':
+                    const el = document.createElement('a');
+                    el.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(output.value));
+                    el.setAttribute('download', 'processed_text.txt');
+                    el.click();
+                    return;
+            }
+
+            output.value = result;
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        // Helper for Morse Code
+        const morseMap = {"A":".-","B":"-...","C":"-.-.","D":"-..","E":".","F":"..-.","G":"--.","H":"....","I":"..","J":".---","K":"-.-","L":".-..","M":"--","N":"-.","O":"---","P":".--.","Q":"--.-","R":".-.","S":"...","T":"-","U":"..-","V":"...-","W":".--","X":"-..-","Y":"-.--","Z":"--.."," ":"/"};
+        function toMorse() {
+            output.value = input.value.toUpperCase().split('').map(c => morseMap[c] || c).join(' ');
+        }
+        // Overwriting switch case for morse because of map
+        const originalRun = run;
+        run = function(action) {
+            if(action === 'toMorse') toMorse();
+            else originalRun(action);
+        }
+    </script>
+</body>
+</html>

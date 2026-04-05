@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Magnifier Ultra Pro Max</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #e0e5ec;
+            --shadow-light: #ffffff;
+            --shadow-dark: #a3b1c6;
+            --primary: #6d5dfc;
+            --accent: #00d2ff;
+            --text: #2d3436;
+            --zoom-lvl: 1;
+        }
+
+        .dark-mode {
+            --bg: #1a1c1e;
+            --shadow-light: #25282c;
+            --shadow-dark: #0f1012;
+            --text: #f1f2f6;
+            --primary: #a29bfe;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Prevent body scroll */
+            transition: background 0.4s ease;
+        }
+
+        /* Top Dynamic Status Bar */
+        .status-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dynamic-island {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Viewer Area */
+        #viewport {
+            flex: 1;
+            margin: 0 15px;
+            position: relative;
+            background: #000;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 20px 20px 40px var(--shadow-dark), -10px -10px 30px var(--shadow-light);
+        }
+
+        video, canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(var(--zoom-lvl));
+            transition: transform 0.1s linear;
+        }
+
+        /* Overlay UI */
+        .view-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 30px;
+        }
+
+        #crosshair {
+            width: 60px;
+            height: 60px;
+            border: 1px solid rgba(0, 210, 255, 0.5);
+            border-radius: 50%;
+            display: none;
+            position: relative;
+        }
+        #crosshair::before { content:''; position:absolute; top:50%; width:100%; height:1px; background:rgba(0,210,255,0.5); }
+        #crosshair::after { content:''; position:absolute; left:50%; height:100%; width:1px; background:rgba(0,210,255,0.5); }
+
+        /* Controls Section */
+        .controls-panel {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 35px 35px 0 0;
+            box-shadow: 0 -15px 30px var(--shadow-dark);
+            z-index: 100;
+        }
+
+        .zoom-hub {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .zoom-text {
+            font-family: 'Orbitron', sans-serif;
+            min-width: 60px;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        input[type=range] {
+            flex: 1;
+            height: 12px;
+            appearance: none;
+            background: var(--bg);
+            border-radius: 10px;
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 3px 3px 6px var(--shadow-dark);
+            cursor: pointer;
+            border: 3px solid var(--bg);
+        }
+
+        /* Features Area with Internal Scroll Fix */
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding: 5px;
+            scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            padding: 8px 20px;
+            background: var(--bg);
+            border: none;
+            border-radius: 12px;
+            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            color: var(--primary);
+        }
+
+        /* Grid Scroll Container */
+        .feature-grid {
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-height: 180px; /* Control height */
+            overflow-y: auto; /* Internal scroll fix */
+            padding: 10px 5px;
+            scrollbar-width: thin;
+        }
+
+        .feature-grid.active { display: grid; }
+
+        .btn-tool {
+            aspect-ratio: 1;
+            background: var(--bg);
+            border: none;
+            border-radius: 18px;
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text);
+            transition: 0.2s;
+        }
+
+        .btn-tool:active {
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            transform: scale(0.95);
+        }
+
+        .btn-tool i { font-size: 1.3rem; margin-bottom: 2px; }
+        .active-tool { color: var(--primary); box-shadow: inset 2px 2px 5px var(--shadow-dark)!important; }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 400px) {
+            .feature-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="status-header">
+        <div class="dynamic-island" id="status-text">SYSTEM READY</div>
+        <button class="tab-btn" onclick="toggleDarkMode()">🌓</button>
+    </div>
+
+    <div id="viewport">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <div class="view-overlay">
+            <div id="crosshair"></div>
+            <div id="grid-lines" style="display:none; position:absolute; inset:0; background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 40px 40px;"></div>
+        </div>
+    </div>
+
+    <div class="controls-panel">
+        <div class="zoom-hub">
+            <span class="zoom-text" id="z-label">1.0x</span>
+            <input type="range" id="z-slider" min="1" max="200" value="1" step="0.1">
+            <button class="tab-btn" onclick="resetZoom()">1x</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'lens')">Camera</button>
+            <button class="tab-btn" onclick="openTab(event, 'filters')">Pro Filters</button>
+            <button class="tab-btn" onclick="openTab(event, 'tools')">Analyze</button>
+            <button class="tab-btn" onclick="openTab(event, 'info')">System</button>
+        </div>
+
+        <!-- CAMERA TAB -->
+        <div id="lens" class="feature-grid active">
+            <button class="btn-tool" onclick="toggleTorch()" id="torchBtn"><i>🔦</i>Torch</button>
+            <button class="btn-tool" onclick="freeze()"><i>❄️</i>Freeze</button>
+            <button class="btn-tool" onclick="snap()"><i>📸</i>Snap</button>
+            <button class="btn-tool" onclick="flip()"><i>🔄</i>Flip</button>
+            <button class="btn-tool" onclick="adjustZoom(20)"><i>➕</i>20x</button>
+            <button class="btn-tool" onclick="adjustZoom(-20)"><i>➖</i>20x</button>
+            <button class="btn-tool" onclick="toggleMirror()"><i>🪞</i>Mirror</button>
+            <button class="btn-tool" onclick="location.reload()"><i>♻️</i>Reset</button>
+        </div>
+
+        <!-- FILTERS TAB (10+ ADDED) -->
+        <div id="filters" class="feature-grid">
+            <button class="btn-tool" onclick="setF('none')">Normal</button>
+            <button class="btn-tool" onclick="setF('grayscale(1)')">B&W</button>
+            <button class="btn-tool" onclick="setF('invert(1)')">Negative</button>
+            <button class="btn-tool" onclick="setF('sepia(1)')">Sepia</button>
+            <button class="btn-tool" onclick="setF('hue-rotate(90deg) saturate(2)')">Thermal</button>
+            <button class="btn-tool" onclick="setF('brightness(1.5) sepia(1) hue-rotate(50deg) saturate(4)')">NightViz</button>
+            <button class="btn-tool" onclick="setF('contrast(3) invert(1)')">X-Ray</button>
+            <button class="btn-tool" onclick="setF('hue-rotate(280deg) saturate(1.5)')">Vaporwave</button>
+            <button class="btn-tool" onclick="setF('contrast(2) saturate(0.5) brightness(0.8)')">Noir</button>
+            <button class="btn-tool" onclick="setF('brightness(2) contrast(1.5)')">Lume</button>
+            <button class="btn-tool" onclick="setF('hue-rotate(180deg)')">Cyber</button>
+            <button class="btn-tool" onclick="setF('saturate(10)')">Vibrant</button>
+            <button class="btn-tool" onclick="setF('blur(2px) brightness(1.2)')">Dream</button>
+            <button class="btn-tool" onclick="setF('contrast(1.5) sepia(0.5)')">Retro</button>
+            <button class="btn-tool" onclick="setF('grayscale(1) contrast(5)')">Edge</button>
+        </div>
+
+        <!-- TOOLS TAB -->
+        <div id="tools" class="feature-grid">
+            <button class="btn-tool" onclick="toggleOverlay('crosshair')">Crosshair</button>
+            <button class="btn-tool" onclick="toggleOverlay('grid-lines')">Grid</button>
+            <button class="btn-tool" onclick="toggleFull()">FullScr</button>
+            <button class="btn-tool" onclick="alert('Focusing Engine: AI Auto')">Focus</button>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const slider = document.getElementById('z-slider');
+        const zLabel = document.getElementById('z-label');
+        let stream = null;
+        let isFront = false;
+        let isMirrored = false;
+
+        // Init Camera
+        async function startCam() {
+            if(stream) stream.getTracks().forEach(t => t.stop());
+            const mode = isFront ? "user" : "environment";
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: mode, width: {ideal: 4096}, height: {ideal: 2160} }
+                });
+                video.srcObject = stream;
+                updateStatus("CAM ACTIVE: " + (isFront ? "FRONT" : "BACK"));
+            } catch (e) {
+                updateStatus("ERROR: NO CAMERA");
+            }
+        }
+
+        // Zoom Logic
+        slider.oninput = (e) => {
+            const val = e.target.value;
+            document.documentElement.style.setProperty('--zoom-lvl', val);
+            zLabel.innerText = parseFloat(val).toFixed(1) + "x";
+            if(window.navigator.vibrate) window.navigator.vibrate(2);
+        };
+
+        function adjustZoom(amt) {
+            let n = parseFloat(slider.value) + amt;
+            n = Math.max(1, Math.min(200, n));
+            slider.value = n;
+            slider.oninput({target: {value: n}});
+        }
+
+        function resetZoom() {
+            slider.value = 1;
+            slider.oninput({target: {value: 1}});
+        }
+
+        // Torch (Flashlight) Fix
+        async function toggleTorch() {
+            const track = stream.getVideoTracks()[0];
+            const caps = track.getCapabilities();
+            if(caps.torch) {
+                const isOff = !track.getConstraints().advanced?.[0]?.torch;
+                await track.applyConstraints({ advanced: [{torch: isOff}] });
+                document.getElementById('torchBtn').classList.toggle('active-tool', isOff);
+                updateStatus(isOff ? "TORCH ON" : "TORCH OFF");
+            } else {
+                alert("Torch not available on this camera.");
+            }
+        }
+
+        // Tab Switcher Fix
+        function openTab(e, tabId) {
+            document.querySelectorAll('.feature-grid').forEach(g => g.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            e.currentTarget.classList.add('active');
+        }
+
+        // Utility Functions
+        function setF(f) { video.style.filter = f; canvas.style.filter = f; }
+        
+        function toggleOverlay(id) {
+            const el = document.getElementById(id);
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function flip() { isFront = !isFront; startCam(); }
+
+        function snap() {
+            const ctx = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+            const link = document.createElement('a');
+            link.download = `zoom_snap_${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+            updateStatus("SNAPSHOT SAVED");
+        }
+
+        function freeze() {
+            if(video.paused) {
+                video.play();
+                updateStatus("LIVE");
+            } else {
+                video.pause();
+                updateStatus("FROZEN");
+            }
+        }
+
+        function updateStatus(txt) {
+            document.getElementById('status-text').innerText = txt;
+        }
+
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
+
+        function toggleFull() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
+        }
+
+        function toggleMirror() {
+            isMirrored = !isMirrored;
+            video.style.transform = `scale(var(--zoom-lvl)) scaleX(${isMirrored ? -1 : 1})`;
+        }
+
+        startCam();
+    </script>
+</body>
+</html>
