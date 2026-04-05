@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Text Repeater</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 15px; }
+        .container { width: 100%; max-width: 450px; background: rgba(25, 25, 35, 0.7); backdrop-filter: blur(20px); padding: 25px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .header { text-align: center; margin-bottom: 20px; font-size: 22px; font-weight: 600; color: #4facfe; }
+        
+        textarea, input[type="number"] { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 12px; border-radius: 10px; margin-bottom: 15px; outline: none; font-size: 14px; }
+        textarea:focus, input[type="number"]:focus { border-color: #00f2fe; }
+        textarea { resize: none; height: 100px; }
+        #output { background: rgba(0,0,0,0.3); height: 150px; }
+
+        .row { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; }
+        .row label { font-size: 13px; color: #b5b5c5; display: flex; align-items: center; gap: 5px; cursor: pointer;}
+        .row input[type="checkbox"] { accent-color: #4facfe; width: 16px; height: 16px; }
+
+        .btn-group { display: flex; gap: 10px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 10px; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; gap: 5px; align-items: center;}
+        .btn-gen { background: linear-gradient(135deg, #00f2fe, #4facfe); width: 100%; margin-bottom: 10px;}
+        .btn-copy { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-down { background: rgba(79, 172, 254, 0.2); border: 1px solid #4facfe; color: #00f2fe;}
+        button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Text Repeater</div>
+        
+        <textarea id="inputText" placeholder="Type text to repeat..."></textarea>
+        
+        <div class="row">
+            <input type="number" id="repeatCount" placeholder="Count (e.g. 100)" min="1" max="10000">
+            <label><input type="checkbox" id="addNewLine"> New Line</label>
+            <label><input type="checkbox" id="addSpace"> Space</label>
+        </div>
+
+        <button class="btn-gen" onclick="repeatText()">Repeat Text</button>
+
+        <textarea id="output" placeholder="Output will appear here..." readonly></textarea>
+
+        <div class="btn-group">
+            <button class="btn-copy" onclick="copyText()">
+                <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+            </button>
+            <button class="btn-down" onclick="downloadText()">
+                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Save .txt
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function repeatText() {
+            let text = document.getElementById('inputText').value;
+            let count = document.getElementById('repeatCount').value;
+            let newLine = document.getElementById('addNewLine').checked;
+            let space = document.getElementById('addSpace').checked;
+            
+            if(!text || !count) return;
+            
+            let separator = "";
+            if(newLine) separator += "\n";
+            if(space) separator += " ";
+
+            // Create array and join for faster performance on huge numbers
+            let result = Array(Number(count)).fill(text).join(separator);
+            document.getElementById('output').value = result;
+        }
+
+        function copyText() {
+            let out = document.getElementById('output');
+            out.select();
+            navigator.clipboard.writeText(out.value);
+            alert("Copied to Clipboard!");
+        }
+
+        function downloadText() {
+            let text = document.getElementById('output').value;
+            if(!text) return;
+            let blob = new Blob([text], { type: "text/plain" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "Repeated_Text.txt";
+            link.click();
+        }
+    </script>
+</body>
+</html>

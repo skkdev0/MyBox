@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pro Image Studio Mobile</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Cropper.js CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+
+    <style>
+        /* === RESET & CONSTRAINTS === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #0f0c29;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        /* === MAIN CONTAINER === */
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(25, 25, 35, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 25px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .app-subtitle {
+            font-size: 12px;
+            color: #a0a0b5;
+        }
+
+        /* === UPLOAD SECTION === */
+        .upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 50px 20px;
+            border: 2px dashed rgba(79, 172, 254, 0.5);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            background: rgba(79, 172, 254, 0.15);
+            border-color: #00f2fe;
+            transform: scale(1.02);
+        }
+
+        .upload-area svg {
+            width: 45px;
+            height: 45px;
+            color: #4facfe;
+            margin-bottom: 15px;
+            stroke-width: 1.5;
+        }
+
+        .upload-area span {
+            font-size: 15px;
+            font-weight: 500;
+            color: #e0e0e0;
+        }
+
+        .upload-area small {
+            font-size: 11px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        #file-input { display: none; }
+
+        /* === WORKSPACE === */
+        .workspace {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .img-container {
+            width: 100%;
+            height: 35vh; /* Mobile friendly height */
+            min-height: 250px;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .img-container img {
+            display: block;
+            max-width: 100%;
+        }
+
+        /* === TOOLBARS === */
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+        }
+
+        .btn-icon {
+            flex: 1;
+            padding: 10px 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.2s;
+            color: #fff;
+        }
+
+        .btn-icon:hover, .btn-icon.active {
+            background: rgba(79, 172, 254, 0.2);
+            border-color: #4facfe;
+            color: #4facfe;
+        }
+
+        .btn-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .btn-text {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* === SETTINGS & EXPORT === */
+        .export-settings {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .custom-input {
+            flex: 2;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .custom-input:focus {
+            border-color: #4facfe;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .custom-select {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 12px 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .custom-select option {
+            background: #1e1e2d;
+            color: #fff;
+        }
+
+        /* === PRIMARY BUTTON === */
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            box-shadow: 0 8px 15px rgba(79, 172, 254, 0.25);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .btn-cancel {
+            background: rgba(255, 75, 75, 0.1);
+            border-color: rgba(255, 75, 75, 0.2);
+            color: #ff4b4b;
+        }
+        
+        /* Cropper UI Customization */
+        .cropper-line, .cropper-point { background-color: #00f2fe; }
+        .cropper-view-box { outline-color: #00f2fe; }
+
+        /* ========================================= */
+        /* MOBILE RESPONSIVE FIXES (Crucial Part)    */
+        /* ========================================= */
+        @media screen and (max-width: 480px) {
+            .app-container {
+                padding: 20px 15px;
+                border-radius: 20px;
+            }
+            /* Input & Dropdown fix for mobile */
+            .export-settings {
+                flex-direction: column; /* Stacks Filename and Format up and down */
+                gap: 8px;
+            }
+            .custom-input, .custom-select {
+                width: 100%; /* Take full width on mobile */
+            }
+            .toolbar {
+                gap: 5px; /* Reduce gap between buttons */
+            }
+            .btn-icon {
+                padding: 10px 0; /* Adjust padding to fit all buttons */
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="header">
+            <div class="app-title">Image crop (beta)</div>
+            <div class="app-subtitle">Crop, Rotate, Flip & Resize</div>
+        </div>
+
+        <!-- UPLOAD AREA -->
+        <label class="upload-area" id="upload-box">
+            <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span>Tap to Upload Image</span>
+            <small>Supports JPG, PNG, WEBP</small>
+        </label>
+
+        <!-- WORKSPACE (Hidden initially) -->
+        <div class="workspace" id="workspace">
+            
+            <div class="img-container" id="cropper-container">
+                <img id="image" src="">
+            </div>
+
+            <!-- TOOLBAR 1: Aspect Ratios -->
+            <div class="toolbar" id="ratio-toolbar">
+                <div class="btn-icon btn-text active" onclick="setRatio(1, this)" title="Square">1:1</div>
+                <div class="btn-icon btn-text" onclick="setRatio(4/5, this)" title="Instagram">4:5</div>
+                <div class="btn-icon btn-text" onclick="setRatio(16/9, this)" title="Widescreen">16:9</div>
+                <div class="btn-icon btn-text" onclick="setRatio(NaN, this)" title="Free Crop">Free</div>
+            </div>
+
+            <!-- TOOLBAR 2: Rotate & Flip -->
+            <div class="toolbar">
+                <div class="btn-icon" onclick="rotateLeft()">
+                    <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                </div>
+                <div class="btn-icon" onclick="rotateRight()">
+                    <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path></svg>
+                </div>
+                <div class="btn-icon" onclick="flipHorizontal()">
+                    <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h3"></path><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"></path><line x1="12" y1="3" x2="12" y2="21"></line></svg>
+                </div>
+                <div class="btn-icon" onclick="flipVertical()">
+                    <svg viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"></path><path d="M3 16v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"></path><line x1="3" y1="12" x2="21" y2="12"></line></svg>
+                </div>
+            </div>
+
+            <!-- TOOLBAR 3: Zoom, Reset & Cancel -->
+            <div class="toolbar">
+                <div class="btn-icon" onclick="zoomIn()">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                </div>
+                <div class="btn-icon" onclick="zoomOut()">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                </div>
+                <div class="btn-icon" onclick="resetCrop()" title="Reset All">
+                    <svg viewBox="0 0 24 24"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                </div>
+                <div class="btn-icon btn-cancel" onclick="cancelCrop()">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </div>
+            </div>
+
+            <!-- SETTINGS: Filename & Format (Fixed for Mobile) -->
+            <div class="export-settings">
+                <input type="text" id="filename-input" class="custom-input" placeholder="File name" value="Edited_Image">
+                <select id="format-select" class="custom-select">
+                    <option value="png">PNG Format</option>
+                    <option value="jpeg">JPG Format</option>
+                    <option value="webp">WEBP Format</option>
+                </select>
+            </div>
+
+            <!-- Action Button -->
+            <button class="btn-primary" onclick="cropAndDownload()">
+                <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                Save to Device
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Cropper.js Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    
+    <script>
+        let cropper;
+        let flipXValue = 1;
+        let flipYValue = 1;
+
+        const uploadBox = document.getElementById('upload-box');
+        const workspace = document.getElementById('workspace');
+        const imageElement = document.getElementById('image');
+        const fileInput = document.getElementById('file-input');
+
+        // Drag & Drop
+        uploadBox.addEventListener('dragover', (e) => { e.preventDefault(); uploadBox.classList.add('dragover'); });
+        uploadBox.addEventListener('dragleave', () => { uploadBox.classList.remove('dragover'); });
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                processFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        // File Selection
+        fileInput.addEventListener('change', function (e) {
+            if (e.target.files.length) processFile(e.target.files[0]);
+        });
+
+        function processFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    imageElement.src = event.target.result;
+                    uploadBox.style.display = 'none';
+                    workspace.style.display = 'block';
+
+                    if (cropper) cropper.destroy();
+                    flipXValue = 1; flipYValue = 1;
+
+                    cropper = new Cropper(imageElement, {
+                        aspectRatio: 1 / 1,
+                        viewMode: 1,
+                        dragMode: 'move',
+                        background: false,
+                        autoCropArea: 0.9,
+                        responsive: true,
+                        guides: true,
+                        center: true,
+                        highlight: false,
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+            fileInput.value = "";
+        }
+
+        // Functions
+        function rotateLeft() { if(cropper) cropper.rotate(-90); }
+        function rotateRight() { if(cropper) cropper.rotate(90); }
+        function flipHorizontal() { if(cropper) { flipXValue = flipXValue === 1 ? -1 : 1; cropper.scaleX(flipXValue); } }
+        function flipVertical() { if(cropper) { flipYValue = flipYValue === 1 ? -1 : 1; cropper.scaleY(flipYValue); } }
+        function zoomIn() { if(cropper) cropper.zoom(0.1); }
+        function zoomOut() { if(cropper) cropper.zoom(-0.1); }
+        
+        function resetCrop() {
+            if(cropper) {
+                cropper.reset();
+                flipXValue = 1; flipYValue = 1;
+                cropper.scale(1, 1);
+            }
+        }
+
+        function setRatio(ratio, element) {
+            if(cropper) cropper.setAspectRatio(ratio);
+            document.querySelectorAll('#ratio-toolbar .btn-icon').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function cancelCrop() {
+            if(cropper) cropper.destroy();
+            workspace.style.display = 'none';
+            uploadBox.style.display = 'flex';
+        }
+
+        function cropAndDownload() {
+            if (!cropper) return;
+            
+            const format = document.getElementById('format-select').value;
+            let filename = document.getElementById('filename-input').value.trim() || "Cropped_Image";
+
+            const canvas = cropper.getCroppedCanvas({
+                width: 1080,
+                height: 1080,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            });
+
+            const mimeType = `image/${format}`;
+            const dataUrl = canvas.toDataURL(mimeType, 0.9);
+            
+            const link = document.createElement('a');
+            link.download = `${filename}.${format}`;
+            link.href = dataUrl;
+            link.click();
+        }
+    </script>
+</body>
+</html>
