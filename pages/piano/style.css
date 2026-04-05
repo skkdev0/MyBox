@@ -1,0 +1,219 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&family=Poppins:wght@400;500;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  /* Remove blue highlight on mobile tap */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+  padding: 15px;
+}
+
+.wrapper {
+  width: 100%;
+  max-width: 800px;
+  padding: 30px;
+  border-radius: 28px; /* Material M3 radius */
+  background: #1a1c1e; /* Material Dark Surface */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Header Section */
+.wrapper header {
+  display: flex;
+  color: #e2e2e6;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 35px;
+  gap: 15px;
+}
+
+header h2 {
+  font-family: 'Google Sans', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: #d1e1ff; /* Material Primary Light */
+}
+
+.column {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.column span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #909094;
+}
+
+/* --- MATERIAL UI SLIDER --- */
+.volume-slider input {
+  -webkit-appearance: none;
+  width: 110px;
+  height: 4px; /* Thin track */
+  background: #44474e;
+  border-radius: 2px;
+  outline: none;
+}
+
+.volume-slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 20px;
+  width: 20px;
+  background: #d1e1ff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 0 0px rgba(209, 225, 255, 0.2);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.volume-slider input:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 12px rgba(209, 225, 255, 0.15); /* Ripple effect */
+}
+
+/* --- MATERIAL UI SWITCH (Show Keys) --- */
+.keys-checkbox input {
+  appearance: none;
+  width: 52px;
+  height: 32px;
+  background: #44474e;
+  border-radius: 100px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+  border: 2px solid #909094;
+}
+
+.keys-checkbox input::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background: #909094;
+  border-radius: 50%;
+  transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.keys-checkbox input:checked {
+  background: #d1e1ff;
+  border-color: #d1e1ff;
+}
+
+.keys-checkbox input:checked::before {
+  left: 26px;
+  width: 24px;
+  height: 24px;
+  background: #002f66;
+}
+
+/* Piano Keys Area */
+.piano-keys {
+  display: flex;
+  list-style: none;
+  background: #000;
+  padding: 15px 10px;
+  border-radius: 16px;
+  justify-content: center;
+}
+
+.piano-keys .key {
+  position: relative;
+  cursor: pointer;
+}
+
+/* White Keys - Premium Finish */
+.piano-keys .white {
+  height: 220px;
+  width: 60px;
+  border-radius: 0 0 8px 8px;
+  background: linear-gradient(to bottom, #fff 95%, #e2e2e2 100%);
+  border: 1px solid #111;
+  transition: all 0.1s;
+}
+
+.piano-keys .white.active {
+  background: #d1e1ff; /* Light Material Blue */
+  transform: translateY(2px);
+}
+
+/* Black Keys - Tactile Finish */
+.piano-keys .black {
+  z-index: 2;
+  width: 36px;
+  height: 135px;
+  margin: 0 -18px; 
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(to bottom, #333 0%, #000 100%);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+}
+
+.piano-keys .black.active {
+  background: #444;
+}
+
+.piano-keys .key span {
+  position: absolute;
+  bottom: 15px;
+  width: 100%;
+  color: #74777f;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.piano-keys .key.hide span {
+  display: none !important;
+}
+
+/* Responsive Fixes */
+@media screen and (max-width: 768px) {
+  .wrapper {
+    padding: 20px;
+  }
+  
+  header {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  .piano-keys .white {
+    width: 42px;
+    height: 170px;
+  }
+
+  .piano-keys .black {
+    width: 26px;
+    height: 105px;
+    margin: 0 -13px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* Extra small screens check */
+  .piano-keys .white {
+    width: 34px;
+  }
+  .piano-keys .black {
+    width: 20px;
+    margin: 0 -10px;
+  }
+  header h2 { font-size: 1.2rem; }
+}
