@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FontGen Pro</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-glass: rgba(30, 41, 59, 0.9);
+            --border: #334155;
+            --text: #f1f5f9;
+            --text-sec: #94a3b8;
+            --success: #10b981;
+        }
+
+        [data-theme="light"] {
+            --primary: #4f46e5;
+            --primary-glow: rgba(79, 70, 229, 0.2);
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --surface-glass: rgba(255, 255, 255, 0.9);
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text-sec: #64748b;
+        }
+
+        * {
+            box-sizing: border-box; margin: 0; padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent; outline: none;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg); color: var(--text);
+            min-height: 100vh; display: flex; flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* --- ICONS (SVG) --- */
+        .icon { width: 20px; height: 20px; fill: currentColor; }
+        
+        /* --- HEADER --- */
+        .app-header {
+            position: sticky; top: 0; z-index: 100;
+            background: var(--surface-glass);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
+            display: flex; flex-direction: column; gap: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .top-bar { display: flex; justify-content: space-between; align-items: center; }
+
+        .logo { 
+            font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        [data-theme="light"] .logo { background: var(--primary); -webkit-background-clip: text; }
+
+        .theme-btn {
+            background: var(--border); border: none; width: 40px; height: 40px;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text); transition: 0.2s;
+        }
+        .theme-btn:active { transform: scale(0.9); }
+
+        /* --- INPUT --- */
+        .input-wrapper { position: relative; width: 100%; }
+        
+        textarea {
+            width: 100%; height: 60px; padding: 14px; padding-right: 40px;
+            border-radius: 14px; border: 2px solid var(--border);
+            background: var(--bg); color: var(--text);
+            font-size: 1.1rem; resize: none; transition: 0.3s;
+            user-select: text; 
+        }
+        
+        textarea:focus { border-color: var(--primary); height: 85px; box-shadow: 0 0 0 4px var(--primary-glow); }
+
+        .clear-btn {
+            position: absolute; right: 12px; top: 12px;
+            background: none; border: none; color: var(--text-sec);
+            cursor: pointer; display: none; padding: 5px;
+        }
+
+        /* --- TABS --- */
+        .tabs {
+            display: flex; gap: 8px; overflow-x: auto; 
+            padding-bottom: 5px; scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+
+        .tab {
+            padding: 8px 16px; border-radius: 50px; font-size: 0.85rem; font-weight: 600;
+            background: var(--border); color: var(--text-sec); border: none; white-space: nowrap;
+            cursor: pointer; transition: 0.2s;
+        }
+        .tab.active { background: var(--primary); color: white; }
+
+        /* --- LIST --- */
+        main { padding: 1rem; width: 100%; max-width: 800px; margin: 0 auto; padding-bottom: 80px; }
+        
+        .font-card {
+            background: var(--surface); padding: 16px; border-radius: 16px;
+            border: 1px solid var(--border); margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: relative; overflow: hidden;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .font-card:active { transform: scale(0.98); background: var(--bg); }
+
+        .preview-area { flex: 1; overflow: hidden; padding-right: 10px; }
+        .style-name { font-size: 0.7rem; color: var(--text-sec); text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+        .font-text { font-size: 1.15rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .card-actions { display: flex; gap: 8px; }
+        
+        .action-btn {
+            width: 42px; height: 42px; border-radius: 12px; border: none;
+            background: var(--border); color: var(--text-sec); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
+        }
+        
+        .btn-fav.active { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .btn-fav svg { fill: currentColor; }
+        
+        .btn-copy { background: var(--primary); color: white; }
+        .btn-copy:active { opacity: 0.8; }
+
+        /* --- TOAST --- */
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(50px);
+            background: var(--text); color: var(--bg); padding: 12px 24px;
+            border-radius: 50px; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); opacity: 0; transition: 0.3s; pointer-events: none; z-index: 200;
+            font-weight: 600;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* --- EMPTY STATE --- */
+        .empty-state {
+            text-align: center; color: var(--text-sec); margin-top: 60px; display: none;
+        }
+        .empty-state p { font-size: 1rem; margin-top: 10px; opacity: 0.7; }
+        /* CSS Draw for Empty Box */
+        .empty-icon {
+            width: 60px; height: 60px; border: 2px dashed var(--text-sec);
+            margin: 0 auto; border-radius: 12px; opacity: 0.5;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <div class="top-bar">
+            <div class="logo">Font Generator</div>
+            <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">
+                <!-- Moon Icon SVG -->
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+            </button>
+        </div>
+
+        <div class="input-wrapper">
+            <textarea id="inputText" placeholder="Type text here..." spellcheck="false"></textarea>
+            <button class="clear-btn" id="clearBtn">
+                <!-- Close Icon SVG -->
+                <svg class="icon" style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('all')">All</button>
+            <button class="tab" onclick="switchTab('fancy')">Fancy</button>
+            <button class="tab" onclick="switchTab('deco')">Decorations</button>
+            <button class="tab" onclick="switchTab('glitch')">Glitch</button>
+            <button class="tab" onclick="switchTab('fav')">Favorites</button>
+        </div>
+    </div>
+
+    <main id="mainContent">
+        <div id="fontList"></div>
+        <div id="emptyState" class="empty-state">
+            <div class="empty-icon"></div>
+            <p>No favorites yet</p>
+        </div>
+    </main>
+
+    <div class="toast" id="toast">
+        <!-- Check Icon SVG -->
+        <svg class="icon" style="fill:var(--success);" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        <span>Copied to Clipboard</span>
+    </div>
+
+<script>
+    // --- ICONS (SVG STRINGS) ---
+    const ICON_HEART_OUTLINE = '<svg class="icon" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 4.16 6.86 7.75 10.07L12 21l2.25-2.43C17.84 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg>';
+    const ICON_HEART_FILLED = '<svg class="icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+    const ICON_COPY = '<svg class="icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
+    const ICON_SUN = '<svg class="icon" viewBox="0 0 24 24"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-1 16.95h2V19.5h-2v2.95zm-7.45-3.91l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8z"/></svg>';
+    const ICON_MOON = '<svg class="icon" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>';
+
+    // --- MAPPINGS ---
+    const mappings = [
+        { name: "Serif Bold", type: "fancy", map: "𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳𝟎𝟏𝟐𝟑𝟒𝟓𝟔𝟕𝟖𝟗" },
+        { name: "Serif Italic", type: "fancy", map: "𝑨𝑩𝑪𝑫𝑬𝑭𝑮𝑯𝑰𝑱𝑲𝑳𝑴𝑵𝑶𝑷𝑸𝑹𝑺𝑻𝑼𝑽𝑾𝑿𝒀𝒁𝒂𝒃𝒄𝒅𝒆𝒇𝒈𝒉𝒊𝒋𝒌𝒍𝒎𝒏𝒐𝒑𝒒𝒓𝒔𝒕𝒖𝒗𝒘𝒙𝒚𝒛𝟎𝟏𝟐𝟑𝟒𝟓𝟔𝟕𝟖𝟗" },
+        { name: "Sans Bold", type: "fancy", map: "𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵" },
+        { name: "Script", type: "fancy", map: "𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏0123456789" },
+        { name: "Script Bold", type: "fancy", map: "𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃0123456789" },
+        { name: "Fraktur", type: "fancy", map: "𝔄𝔅ℭ𝔇𝔈𝔉𝔊ℌℑ𝔍𝔎𝔏𝔐𝔑𝔒𝔓𝔔ℜ𝔖𝔗𝔘𝔙𝔚𝔛𝔜ℨ𝔞𝔟𝔠𝔡𝔢𝔣𝔤𝔥𝔦𝔧𝔨𝔩𝔪𝔫𝔬𝔭𝔮𝔯𝔰𝔱𝔲𝔳𝔴𝔵𝔶𝔷0123456789" },
+        { name: "Double Struck", type: "fancy", map: "𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡" },
+        { name: "Monospace", type: "fancy", map: "𝙰𝙱𝙲𝙳𝙴𝙵𝙶𝙷𝙸𝙹𝙺𝙻𝙼𝙽𝙾𝙿𝚀𝚁𝚂𝚃𝚄𝚅𝚆𝚇𝚈𝚉𝚊𝚋𝚌𝚍𝚎𝚏𝚐𝚑𝚒𝚓𝚔𝚕𝚖𝚗𝚘𝚙𝚚𝚛𝚜𝚝𝚞𝚟𝚠𝚡𝚢𝚣𝟶𝟷𝟸𝟹𝟺𝟻𝟼𝟽𝟾𝟿" },
+        { name: "Small Caps", type: "fancy", map: "ᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢ0123456789" },
+        { name: "Circles", type: "fancy", map: "ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ0123456789" },
+        { name: "Black Circles", type: "fancy", map: "🅐🅑🅒🅓🅔🅕🅖🅗🅘🅙🅚🅛🅜🅝🅞🅟🅠🅡🅢🅣🅤🅥🅦🅧🅨🅩🅐🅑🅒🅓🅔🅕🅖🅗🅘🅙🅚🅛🅜🅝🅞🅟🅠🅡🅢🅣🅤🅥🅦🅧🅨🅩⓿❶❷❸❹❺❻❼❽❾" },
+        { name: "Square", type: "fancy", map: "🄐🄑🄒🄓🄔🄕🄖🄗🄘🄙🄚🄛🄜🄝🄞🄟🄠🄡🄢🄣🄤🄥🄦🄧🄨🄩🄐🄑🄒🄓🄔🄕🄖🄗🄘🄙🄚🄛🄜🄝🄞🄟🄠🄡🄢🄣🄤🄥🄦🄧🄨🄩0123456789" },
+        { name: "Underline", type: "fancy", fn: (t) => addCombining(t, 818) },
+        { name: "Strikethrough", type: "fancy", fn: (t) => addCombining(t, 822) },
+        { name: "Flip Text", type: "fancy", fn: flipText },
+        { name: "Vaporwave", type: "glitch", fn: (t) => t.split('').join(' ').toUpperCase() },
+        { name: "Zalgo Light", type: "glitch", level: 1 },
+        { name: "Zalgo Heavy", type: "glitch", level: 2 },
+        { name: "Wings", type: "deco", prefix: "꧁ ", suffix: " ꧂" },
+        { name: "Stars", type: "deco", prefix: "★ ", suffix: " ★" },
+        { name: "Hearts", type: "deco", prefix: "♥ ", suffix: " ♥" },
+        { name: "Brackets", type: "deco", prefix: "【 ", suffix: " 】" },
+        { name: "Arrows", type: "deco", prefix: "➳ ", suffix: " ➳" },
+        { name: "Sparkles", type: "deco", prefix: "✨ ", suffix: " ✨" },
+        { name: "Cute", type: "deco", prefix: "ʕ•́ᴥ•̀ʔっ ", suffix: "" },
+        { name: "Gun", type: "deco", prefix: "︻╦o╤— ", suffix: "" }
+    ];
+
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const input = document.getElementById('inputText');
+    const fontList = document.getElementById('fontList');
+    const emptyState = document.getElementById('emptyState');
+    const clearBtn = document.getElementById('clearBtn');
+    
+    let currentTab = 'all';
+    let favorites = JSON.parse(localStorage.getItem('favFonts')) || [];
+
+    // Initialize
+    input.value = "Hello World";
+    input.focus();
+    renderFonts();
+
+    // Listeners
+    input.addEventListener('input', () => { autoResize(); toggleClearBtn(); renderFonts(); });
+    clearBtn.addEventListener('click', () => { input.value = ""; input.focus(); autoResize(); toggleClearBtn(); renderFonts(); });
+
+    function autoResize() {
+        input.style.height = 'auto';
+        input.style.height = (input.scrollHeight) + 'px';
+    }
+
+    function toggleClearBtn() {
+        clearBtn.style.display = input.value.length > 0 ? 'block' : 'none';
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+        renderFonts();
+    }
+
+    function renderFonts() {
+        const text = input.value || "Type something...";
+        fontList.innerHTML = '';
+        let hasFonts = false;
+
+        mappings.forEach((font) => {
+            if (currentTab === 'fav' && !favorites.includes(font.name)) return;
+            if (currentTab !== 'all' && currentTab !== 'fav' && font.type !== currentTab) return;
+
+            hasFonts = true;
+            let result = generateText(text, font);
+            let isFav = favorites.includes(font.name);
+
+            const card = document.createElement('div');
+            card.className = 'font-card';
+            card.innerHTML = `
+                <div class="preview-area" onclick="copyText('${result.replace(/'/g, "\\'")}')">
+                    <div class="style-name">${font.name}</div>
+                    <div class="font-text">${result}</div>
+                </div>
+                <div class="card-actions">
+                    <button class="action-btn btn-fav ${isFav?'active':''}" onclick="toggleFav('${font.name}', this)">
+                        ${isFav ? ICON_HEART_FILLED : ICON_HEART_OUTLINE}
+                    </button>
+                    <button class="action-btn btn-copy" onclick="copyText('${result.replace(/'/g, "\\'")}')">
+                        ${ICON_COPY}
+                    </button>
+                </div>
+            `;
+            fontList.appendChild(card);
+        });
+
+        emptyState.style.display = hasFonts ? 'none' : 'block';
+    }
+
+    // Logic Functions
+    function generateText(text, font) {
+        if (font.map) return transformMap(text, font.map);
+        if (font.fn) return font.fn(text);
+        if (font.level) return zalgoText(text, font.level);
+        if (font.prefix || font.suffix) return (font.prefix||"") + text + (font.suffix||"");
+        return text;
+    }
+
+    function transformMap(text, mapStr) {
+        const map = Array.from(mapStr);
+        return text.split('').map(c => {
+            const i = alphabet.indexOf(c);
+            return i > -1 ? map[i] : c;
+        }).join('');
+    }
+
+    function addCombining(text, code) { return text.split('').map(c => c + String.fromCharCode(code)).join(''); }
+    
+    function flipText(text) {
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,.?!'\"";
+        const flipped = "ɐqɔpǝɟƃɥıɾʞlɯuodbɹsʇnʌʍxʎz∀qƆpƎℲפHIſʞ˥WNOԀQɹS┴∩ΛMX⅄Z0ƖᄅƐㄣϛ9ㄥ86'¿¡,.,,";
+        return text.split('').reverse().map(c => { const i = chars.indexOf(c); return i !== -1 ? flipped[i] : c; }).join('');
+    }
+
+    function zalgoText(text, level) {
+        const up = ['̍','̎','̄','̅','̿','̑','̆','̐','','','̊','̋','̌'];
+        const mid = ['̕','̛','̀','́','͘','̡','̢','̧','̨','̴','̵','̶'];
+        const down = ['̖','̗','̘','̙','','','','Cc','̱','̲','̳','̹'];
+        let res = '';
+        for(let c of text) {
+            res += c; if(c === ' ') continue;
+            for(let j=0; j<level; j++) res += up[Math.floor(Math.random()*up.length)];
+            for(let j=0; j<level; j++) res += down[Math.floor(Math.random()*down.length)];
+        }
+        return res;
+    }
+
+    function copyText(text) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed"; textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            showToast();
+        } catch (err) {}
+        document.body.removeChild(textarea);
+    }
+
+    function toggleFav(name, btn) {
+        if (favorites.includes(name)) {
+            favorites = favorites.filter(f => f !== name);
+            btn.classList.remove('active');
+            btn.innerHTML = ICON_HEART_OUTLINE;
+        } else {
+            favorites.push(name);
+            btn.classList.add('active');
+            btn.innerHTML = ICON_HEART_FILLED;
+        }
+        localStorage.setItem('favFonts', JSON.stringify(favorites));
+        if(currentTab === 'fav') renderFonts();
+    }
+
+    function showToast() {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    function toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        document.getElementById('themeBtn').innerHTML = isDark ? ICON_SUN : ICON_MOON;
+    }
+</script>
+</body>
+</html>

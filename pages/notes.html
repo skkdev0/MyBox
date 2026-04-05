@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Notes | Next Level</title>
+    <style>
+        /* =========================================
+           1. GLOBAL & USER-SELECT RULES
+        ========================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Transparent highlight as requested */
+        ::selection {
+            background-color: transparent;
+            color: inherit;
+        }
+
+        /* Allow selection only in inputs and editable areas so it's usable */
+        input[type="text"], .editor-content {
+            -webkit-user-select: auto;
+            -moz-user-select: auto;
+            -ms-user-select: auto;
+            user-select: auto;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        body {
+            background-color: #0b1120;
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* =========================================
+           2. HEADER & NAVIGATION
+        ========================================= */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #1e293b;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-bar {
+            position: relative;
+        }
+
+        .search-bar input {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: white;
+            padding: 10px 15px 10px 40px;
+            border-radius: 20px;
+            outline: none;
+            width: 250px;
+            transition: 0.3s;
+        }
+
+        .search-bar input:focus { border-color: #38bdf8; width: 300px; }
+        .search-bar svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); fill: #94a3b8; width: 18px; }
+
+        .btn-add {
+            background: linear-gradient(135deg, #38bdf8, #2563eb);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+            transition: 0.3s;
+        }
+        .btn-add:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4); }
+        .btn-add svg { fill: white; width: 16px; }
+
+        /* =========================================
+           3. NOTES GRID LAYOUT
+        ========================================= */
+        .notes-container {
+            padding: 30px 5%;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            align-items: start;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 50px;
+            color: #64748b;
+        }
+
+        .note-card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            border: 1px solid #334155;
+            transition: 0.3s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .note-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .note-title { font-size: 18px; font-weight: bold; color: #f8fafc; }
+        
+        /* Pin Icon inside Card */
+        .pin-icon { fill: #64748b; width: 18px; cursor: pointer; transition: 0.2s; }
+        .pin-icon.active { fill: #eab308; }
+
+        .note-body {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.5;
+            max-height: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+        }
+
+        .note-footer {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #64748b;
+            border-top: 1px solid #334155;
+            padding-top: 10px;
+        }
+
+        .card-actions svg { width: 16px; fill: #64748b; margin-left: 10px; cursor: pointer; transition: 0.2s; }
+        .card-actions svg:hover { fill: #ef4444; }
+        .card-actions .download-icon:hover { fill: #38bdf8; }
+
+        /* Color Tags */
+        .color-blue { border-top: 4px solid #38bdf8; }
+        .color-red { border-top: 4px solid #ef4444; }
+        .color-green { border-top: 4px solid #22c55e; }
+        .color-yellow { border-top: 4px solid #eab308; }
+        .color-purple { border-top: 4px solid #a855f7; }
+
+        /* =========================================
+           4. RICH TEXT MODAL (EDITOR)
+        ========================================= */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .modal-overlay.show { display: flex; opacity: 1; }
+
+        .modal-content {
+            background: #1e293b;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .modal-overlay.show .modal-content { transform: scale(1); }
+
+        .editor-title {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            outline: none;
+            width: 100%;
+        }
+        .editor-title::placeholder { color: #64748b; }
+
+        /* Formatting Toolbar */
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .tool-btn:hover { background: #334155; color: #38bdf8; }
+
+        /* Color Picker inside Editor */
+        .color-picker { display: flex; gap: 8px; margin-left: auto; align-items: center; }
+        .color-dot {
+            width: 16px; height: 16px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;
+        }
+        .color-dot.active { border-color: white; }
+
+        .editor-content {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            color: #f8fafc;
+            outline: none;
+            line-height: 1.6;
+        }
+        .editor-content:focus { border-color: #38bdf8; }
+
+        .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .stats { font-size: 12px; color: #64748b; }
+
+        .modal-btns { display: flex; gap: 10px; }
+        .btn-cancel { background: #334155; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
+        .btn-save { background: #38bdf8; color: #0f172a; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+
+        @media(max-width: 600px) {
+            header { flex-direction: column; gap: 15px; }
+            .search-bar input { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="logo">NotesPro.</div>
+        <div class="header-actions">
+            <div class="search-bar">
+                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input type="text" id="searchInput" placeholder="Search notes...">
+            </div>
+            <button class="btn-add" onclick="openModal()">
+                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                New Note
+            </button>
+        </div>
+    </header>
+
+    <!-- Notes Grid -->
+    <div class="notes-container" id="notesContainer">
+        <!-- Notes dynamically injected here -->
+    </div>
+
+    <!-- Rich Text Modal -->
+    <div class="modal-overlay" id="noteModal">
+        <div class="modal-content">
+            <input type="text" id="noteTitle" class="editor-title" placeholder="Note Title...">
+            
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <button class="tool-btn" onclick="formatDoc('bold')">B</button>
+                <button class="tool-btn" onclick="formatDoc('italic')">I</button>
+                <button class="tool-btn" onclick="formatDoc('underline')">U</button>
+                <button class="tool-btn" onclick="formatDoc('insertUnorderedList')">• List</button>
+                <button class="tool-btn" onclick="formatDoc('insertOrderedList')">1. List</button>
+                
+                <!-- Color Tagging -->
+                <div class="color-picker" id="colorPicker">
+                    <div class="color-dot active" style="background:#38bdf8" data-color="blue" onclick="setColor('blue')"></div>
+                    <div class="color-dot" style="background:#ef4444" data-color="red" onclick="setColor('red')"></div>
+                    <div class="color-dot" style="background:#22c55e" data-color="green" onclick="setColor('green')"></div>
+                    <div class="color-dot" style="background:#eab308" data-color="yellow" onclick="setColor('yellow')"></div>
+                    <div class="color-dot" style="background:#a855f7" data-color="purple" onclick="setColor('purple')"></div>
+                </div>
+            </div>
+
+            <!-- Editable Content -->
+            <div class="editor-content" id="noteContent" contenteditable="true" placeholder="Start typing here..."></div>
+
+            <!-- Footer Stats & Buttons -->
+            <div class="modal-footer">
+                <div class="stats"><span id="wordCount">0</span> Words | <span id="charCount">0</span> Chars</div>
+                <div class="modal-btns">
+                    <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                    <button class="btn-save" onclick="saveNote()">Save Note</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // App State
+    let notes = JSON.parse(localStorage.getItem('pro_notes')) || [];
+    let editingId = null;
+    let selectedColor = 'blue';
+
+    // DOM Elements
+    const modal = document.getElementById('noteModal');
+    const noteTitle = document.getElementById('noteTitle');
+    const noteContent = document.getElementById('noteContent');
+    const notesContainer = document.getElementById('notesContainer');
+    const searchInput = document.getElementById('searchInput');
+    const wordCount = document.getElementById('wordCount');
+    const charCount = document.getElementById('charCount');
+
+    // Initialize
+    renderNotes();
+
+    // =========================================
+    // MODAL & EDITOR LOGIC
+    // =========================================
+    function openModal(id = null) {
+        editingId = id;
+        if (id) {
+            const note = notes.find(n => n.id === id);
+            noteTitle.value = note.title;
+            noteContent.innerHTML = note.content;
+            setColor(note.color || 'blue');
+        } else {
+            noteTitle.value = '';
+            noteContent.innerHTML = '';
+            setColor('blue');
+        }
+        updateCounts();
+        modal.classList.add('show');
+    }
+
+    function closeModal() {
+        modal.classList.remove('show');
+    }
+
+    function formatDoc(cmd) {
+        document.execCommand(cmd, false, null);
+        noteContent.focus();
+    }
+
+    function setColor(color) {
+        selectedColor = color;
+        document.querySelectorAll('.color-dot').forEach(dot => {
+            dot.classList.remove('active');
+            if (dot.getAttribute('data-color') === color) {
+                dot.classList.add('active');
+            }
+        });
+    }
+
+    // Live Word/Character Counter
+    noteContent.addEventListener('input', updateCounts);
+    function updateCounts() {
+        const text = noteContent.innerText || '';
+        charCount.innerText = text.length;
+        const words = text.trim().split(/\s+/).filter(w => w.length > 0);
+        wordCount.innerText = words.length;
+    }
+
+    // =========================================
+    // CRUD OPERATIONS
+    // =========================================
+    function saveNote() {
+        const title = noteTitle.value.trim() || 'Untitled Note';
+        const content = noteContent.innerHTML.trim();
+        const plainText = noteContent.innerText.trim();
+
+        if (!plainText && !content) return alert('Note cannot be empty!');
+
+        if (editingId) {
+            // Update Existing
+            const index = notes.findIndex(n => n.id === editingId);
+            notes[index].title = title;
+            notes[index].content = content;
+            notes[index].color = selectedColor;
+            notes[index].lastEdited = new Date().getTime();
+        } else {
+            // Create New
+            const newNote = {
+                id: Date.now().toString(),
+                title: title,
+                content: content,
+                color: selectedColor,
+                pinned: false,
+                date: new Date().getTime(),
+                lastEdited: new Date().getTime()
+            };
+            notes.unshift(newNote); // Add to top
+        }
+
+        saveToLocal();
+        closeModal();
+        renderNotes();
+    }
+
+    function deleteNote(e, id) {
+        e.stopPropagation(); // Prevent opening modal
+        if (confirm('Are you sure you want to delete this note?')) {
+            notes = notes.filter(n => n.id !== id);
+            saveToLocal();
+            renderNotes();
+        }
+    }
+
+    function togglePin(e, id) {
+        e.stopPropagation();
+        const index = notes.findIndex(n => n.id === id);
+        notes[index].pinned = !notes[index].pinned;
+        saveToLocal();
+        renderNotes();
+    }
+
+    function downloadNote(e, id) {
+        e.stopPropagation();
+        const note = notes.find(n => n.id === id);
+        // Strip HTML tags for TXT download
+        const plainContent = note.content.replace(/<[^>]+>/g, '\n').replace(/\n\s*\n/g, '\n');
+        const textToSave = `Title: ${note.title}\nDate: ${formatDate(note.date)}\n\n${plainContent}`;
+        
+        const blob = new Blob([textToSave], { type: "text/plain" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `${note.title}.txt`;
+        a.click();
+    }
+
+    function saveToLocal() {
+        localStorage.setItem('pro_notes', JSON.stringify(notes));
+    }
+
+    // =========================================
+    // RENDER & SEARCH
+    // =========================================
+    searchInput.addEventListener('input', renderNotes);
+
+    function renderNotes() {
+        notesContainer.innerHTML = '';
+        const query = searchInput.value.toLowerCase();
+
+        // Sort: Pinned first, then by Last Edited Date
+        let sortedNotes = [...notes].sort((a, b) => {
+            if (a.pinned === b.pinned) return b.lastEdited - a.lastEdited;
+            return a.pinned ? -1 : 1;
+        });
+
+        // Filter by Search
+        if (query) {
+            sortedNotes = sortedNotes.filter(n => 
+                n.title.toLowerCase().includes(query) || 
+                n.content.toLowerCase().includes(query)
+            );
+        }
+
+        if (sortedNotes.length === 0) {
+            notesContainer.innerHTML = `<div class="empty-state"><h3>No notes found.</h3><p>Click "New Note" to create one.</p></div>`;
+            return;
+        }
+
+        sortedNotes.forEach(note => {
+            const dateStr = formatDate(note.lastEdited);
+            const pinClass = note.pinned ? 'active' : '';
+            
+            const card = document.createElement('div');
+            card.className = `note-card color-${note.color || 'blue'}`;
+            card.onclick = () => openModal(note.id);
+
+            card.innerHTML = `
+                <div class="note-header">
+                    <div class="note-title">${note.title}</div>
+                    <svg class="pin-icon ${pinClass}" onclick="togglePin(event, '${note.id}')" viewBox="0 0 24 24"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+                </div>
+                <div class="note-body">${note.content}</div>
+                <div class="note-footer">
+                    <span>${dateStr}</span>
+                    <div class="card-actions">
+                        <svg class="download-icon" onclick="downloadNote(event, '${note.id}')" title="Download TXT" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                        <svg onclick="deleteNote(event, '${note.id}')" title="Delete" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    </div>
+                </div>
+            `;
+            notesContainer.appendChild(card);
+        });
+    }
+
+    function formatDate(ms) {
+        const d = new Date(ms);
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+</script>
+</body>
+</html>

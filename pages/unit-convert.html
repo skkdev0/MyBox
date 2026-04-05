@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>40+ Pro Unit Converter | Pure UI</title>
+    <style>
+        /* =========================================
+           GLOBAL SETTINGS & USER-SELECT NONE
+        ========================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::selection {
+            background-color: transparent;
+        }
+
+        body {
+            background-color: #0f172a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* =========================================
+           PREMIUM CALCULATOR-STYLE CONTAINER
+        ========================================= */
+        .converter-app {
+            background: #1e293b;
+            width: 380px;
+            border-radius: 35px;
+            padding: 25px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6),
+                        inset 0 2px 5px rgba(255, 255, 255, 0.1);
+        }
+
+        /* =========================================
+           OLED DISPLAY SCREEN
+        ========================================= */
+        .screen {
+            background: #0b1120;
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin-bottom: 25px;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .category-wrapper {
+            background: #334155;
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-bottom: 20px;
+        }
+
+        .category-select {
+            width: 100%;
+            background: transparent;
+            color: #38bdf8;
+            border: none;
+            font-size: 15px;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-align: center;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        
+        .category-select option {
+            background: #1e293b;
+            color: #fff;
+        }
+
+        .display-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        
+        .display-row.output {
+            margin-bottom: 0;
+            border-top: 1px dashed #334155;
+            padding-top: 15px;
+        }
+
+        .value {
+            font-size: 36px;
+            font-weight: 300;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            min-height: 45px;
+            letter-spacing: 1px;
+        }
+        .value::-webkit-scrollbar { display: none; }
+        
+        .output .value {
+            color: #22c55e;
+            font-weight: 500;
+        }
+
+        .unit-select {
+            background: transparent;
+            color: #94a3b8;
+            border: none;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+            appearance: none;
+            -webkit-appearance: none;
+            text-overflow: ellipsis;
+        }
+        
+        .unit-select option {
+            background: #1e293b;
+            color: #fff;
+        }
+
+        /* Swap Arrow Button */
+        .swap-btn {
+            position: absolute;
+            right: 20px;
+            top: 60%;
+            transform: translateY(-50%);
+            background: #38bdf8;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+            transition: 0.2s;
+            z-index: 10;
+        }
+        .swap-btn:active { transform: translateY(-50%) scale(0.9); }
+        .swap-btn svg { fill: #0f172a; width: 22px; height: 22px; }
+
+        /* =========================================
+           CLEAN NUMPAD (No Math Operators)
+        ========================================= */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .btn {
+            background: #334155;
+            border: none;
+            border-radius: 16px;
+            height: 70px;
+            font-size: 26px;
+            color: #f8fafc;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #0f172a;
+            transition: all 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #0f172a;
+        }
+
+        .btn-action { background: #475569; color: #38bdf8; font-size: 22px;}
+        .btn-clear { background: #ef4444; color: white; font-weight: bold;}
+        .btn-zero { grid-column: span 2; } /* Makes '0' button wider */
+
+        @media (max-width: 400px) {
+            .converter-app { width: 100%; height: 100vh; border-radius: 0; padding: 20px; }
+            .btn { height: 75px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="converter-app">
+    <!-- OLED Screen Section -->
+    <div class="screen">
+        <div class="category-wrapper">
+            <!-- 42 Categories included here -->
+            <select class="category-select" id="categorySelect"></select>
+        </div>
+        
+        <div class="display-row">
+            <div class="value" id="inputValue">0</div>
+            <select class="unit-select" id="fromUnitSelect"></select>
+        </div>
+
+        <button class="swap-btn" id="swapBtn">
+            <svg viewBox="0 0 24 24"><path d="M12 2.5l4 4h-3v5h-2v-5H8l4-4zM12 21.5l-4-4h3v-5h2v5h3l-4 4z"/></svg>
+        </button>
+
+        <div class="display-row output">
+            <div class="value" id="outputValue">0</div>
+            <select class="unit-select" id="toUnitSelect"></select>
+        </div>
+    </div>
+
+    <!-- Clean Numpad Section (No +, - , * , /) -->
+    <div class="keypad">
+        <button class="btn btn-clear" onclick="input('AC')">AC</button>
+        <button class="btn btn-action" onclick="input('DEL')">⌫</button>
+        <button class="btn btn-action" onclick="swapSign()">+/-</button>
+        
+        <button class="btn" onclick="input('7')">7</button>
+        <button class="btn" onclick="input('8')">8</button>
+        <button class="btn" onclick="input('9')">9</button>
+        
+        <button class="btn" onclick="input('4')">4</button>
+        <button class="btn" onclick="input('5')">5</button>
+        <button class="btn" onclick="input('6')">6</button>
+        
+        <button class="btn" onclick="input('1')">1</button>
+        <button class="btn" onclick="input('2')">2</button>
+        <button class="btn" onclick="input('3')">3</button>
+        
+        <button class="btn btn-zero" onclick="input('0')">0</button>
+        <button class="btn" onclick="input('.')">.</button>
+    </div>
+</div>
+
+<script>
+    // =========================================
+    // 42+ CATEGORIES (Massive Converter Database)
+    // =========================================
+    const unitData = {
+        "Acceleration": { "Meter/s² (m/s²)": 1, "Gravity (g)": 9.80665, "Foot/s² (ft/s²)": 0.3048 },
+        "Angle": { "Degree (°)": 1, "Radian (rad)": 57.2958, "Gradian": 0.9, "Minute (')": 0.0166667, "Second ('')": 0.000277778 },
+        "Area": { "Square Meter (m²)": 1, "Square Kilometer (km²)": 1e6, "Square Centimeter (cm²)": 0.0001, "Hectare (ha)": 10000, "Acre (ac)": 4046.86, "Square Mile (mi²)": 2589988, "Square Yard (yd²)": 0.836127, "Square Foot (ft²)": 0.092903 },
+        "Capacitance": { "Farad (F)": 1, "Millifarad (mF)": 1e-3, "Microfarad (µF)": 1e-6, "Nanofarad (nF)": 1e-9, "Picofarad (pF)": 1e-12 },
+        "Concentration": { "Kilogram/m³": 1, "Gram/Liter (g/L)": 1, "Milligram/Liter (mg/L)": 0.001, "Part per million (ppm)": 0.001 },
+        "Conductance": { "Siemens (S)": 1, "Millisiemens (mS)": 1e-3, "Microsiemens (µS)": 1e-6 },
+        "Data Storage": { "Byte (B)": 1, "Kilobyte (KB)": 1024, "Megabyte (MB)": 1048576, "Gigabyte (GB)": 1073741824, "Terabyte (TB)": 1099511627776, "Bit (b)": 0.125 },
+        "Data Transfer": { "Bit/s (bps)": 1, "Kilobit/s (Kbps)": 1000, "Megabit/s (Mbps)": 1e6, "Gigabit/s (Gbps)": 1e9, "Byte/s (B/s)": 8, "Megabyte/s (MB/s)": 8e6 },
+        "Density": { "Kilogram/m³": 1, "Gram/cm³": 1000, "Pound/ft³": 16.0185, "Pound/in³": 27680 },
+        "Electric Charge": { "Coulomb (C)": 1, "Millicoulomb (mC)": 1e-3, "Microcoulomb (µC)": 1e-6, "Ampere-hour (Ah)": 3600, "Milliampere-hour (mAh)": 3.6 },
+        "Electric Current": { "Ampere (A)": 1, "Milliampere (mA)": 1e-3, "Kiloampere (kA)": 1000, "Microampere (µA)": 1e-6 },
+        "Energy": { "Joule (J)": 1, "Kilojoule (kJ)": 1000, "Calorie (cal)": 4.184, "Kilocalorie (kcal)": 4184, "Watt-hour (Wh)": 3600, "Kilowatt-hour (kWh)": 3.6e6, "Electronvolt (eV)": 1.602e-19, "BTU": 1055.06 },
+        "Force": { "Newton (N)": 1, "Kilonewton (kN)": 1000, "Pound-force (lbf)": 4.44822, "Kilogram-force (kgf)": 9.80665 },
+        "Frequency": { "Hertz (Hz)": 1, "Kilohertz (kHz)": 1000, "Megahertz (MHz)": 1e6, "Gigahertz (GHz)": 1e9 },
+        "Fuel Economy": { "Kilometer/Liter (km/L)": 1, "Miles/Gallon (US mpg)": 0.425144, "Miles/Gallon (UK mpg)": 0.354006 },
+        "Illuminance": { "Lux (lx)": 1, "Foot-candle (fc)": 10.7639 },
+        "Inductance": { "Henry (H)": 1, "Millihenry (mH)": 1e-3, "Microhenry (µH)": 1e-6 },
+        "Length": { "Meter (m)": 1, "Kilometer (km)": 1000, "Centimeter (cm)": 0.01, "Millimeter (mm)": 0.001, "Mile (mi)": 1609.34, "Yard (yd)": 0.9144, "Foot (ft)": 0.3048, "Inch (in)": 0.0254, "Nautical Mile": 1852 },
+        "Luminance": { "Candela/m² (cd/m²)": 1, "Nit (nt)": 1, "Foot-lambert (fL)": 3.42626 },
+        "Luminous Intensity": { "Candela (cd)": 1, "Millicandela (mcd)": 0.001 },
+        "Magnetic Flux": { "Weber (Wb)": 1, "Milliweber (mWb)": 1e-3, "Maxwell (Mx)": 1e-8 },
+        "Magnetic Flux Density":{ "Tesla (T)": 1, "Millitesla (mT)": 1e-3, "Gauss (G)": 1e-4 },
+        "Mass Flow": { "Kilogram/sec (kg/s)": 1, "Kilogram/hour (kg/h)": 0.000277778, "Pound/sec (lb/s)": 0.453592, "Pound/hour (lb/h)": 0.000125998 },
+        "Power": { "Watt (W)": 1, "Kilowatt (kW)": 1000, "Megawatt (MW)": 1e6, "Horsepower (HP Metric)": 735.5, "Horsepower (HP Mech)": 745.7 },
+        "Pressure": { "Pascal (Pa)": 1, "Kilopascal (kPa)": 1000, "Bar": 100000, "PSI": 6894.76, "Atmosphere (atm)": 101325, "Torr (mmHg)": 133.322 },
+        "Radiation (Absorbed)": { "Gray (Gy)": 1, "Milligray (mGy)": 1e-3, "Rad (rad)": 0.01 },
+        "Radiation (Activity)": { "Becquerel (Bq)": 1, "Curie (Ci)": 3.7e10, "Millicurie (mCi)": 3.7e7 },
+        "Radiation (Equivalent)":{ "Sievert (Sv)": 1, "Millisievert (mSv)": 1e-3, "Rem (rem)": 0.01 },
+        "Resistance": { "Ohm (Ω)": 1, "Kilo-ohm (kΩ)": 1000, "Mega-ohm (MΩ)": 1e6, "Milli-ohm (mΩ)": 1e-3 },
+        "Resolution": { "Dot/inch (dpi)": 1, "Dot/cm (dpcm)": 2.54, "Pixel/inch (ppi)": 1 },
+        "Speed": { "Meter/sec (m/s)": 1, "Km/hour (km/h)": 0.277778, "Mile/hour (mph)": 0.44704, "Foot/sec (ft/s)": 0.3048, "Knot (kn)": 0.514444, "Mach": 343 },
+        "Temperature": { "Celsius (°C)": "C", "Fahrenheit (°F)": "F", "Kelvin (K)": "K" },
+        "Time": { "Second (s)": 1, "Millisecond (ms)": 0.001, "Minute (min)": 60, "Hour (h)": 3600, "Day (d)": 86400, "Week (wk)": 604800, "Month (30 d)": 2592000, "Year": 31536000 },
+        "Torque": { "Newton-meter (N·m)": 1, "Pound-foot (lbf·ft)": 1.35582, "Pound-inch (lbf·in)": 0.112985 },
+        "Typography": { "Point (pt)": 1, "Pica (pc)": 12, "Pixel (px)": 0.75, "Em": 12 },
+        "Viscosity (Dynamic)": { "Pascal-second (Pa·s)": 1, "Poise (P)": 0.1, "Centipoise (cP)": 0.001 },
+        "Viscosity (Kinematic)": { "Square Meter/sec": 1, "Stokes (St)": 1e-4, "Centistokes (cSt)": 1e-6 },
+        "Voltage": { "Volt (V)": 1, "Millivolt (mV)": 1e-3, "Kilovolt (kV)": 1000, "Megavolt (MV)": 1e6 },
+        "Volume Flow": { "Cubic Meter/sec (m³/s)": 1, "Liter/sec (L/s)": 0.001, "Liter/min (L/min)": 0.0000166667, "Cubic ft/min (CFM)": 0.000471947 },
+        "Volume": { "Cubic Meter (m³)": 1, "Liter (L)": 0.001, "Milliliter (mL)": 1e-6, "US Gallon (gal)": 0.00378541, "US Quart (qt)": 0.000946353, "Fluid Ounce (fl oz)": 0.0000295735 },
+        "Weight / Mass": { "Kilogram (kg)": 1, "Gram (g)": 0.001, "Milligram (mg)": 1e-6, "Metric Ton (t)": 1000, "Pound (lb)": 0.453592, "Ounce (oz)": 0.0283495, "Carat (ct)": 0.0002 }
+    };
+
+    // DOM Elements
+    const categorySelect = document.getElementById('categorySelect');
+    const fromUnitSelect = document.getElementById('fromUnitSelect');
+    const toUnitSelect = document.getElementById('toUnitSelect');
+    const inputDisplay = document.getElementById('inputValue');
+    const outputDisplay = document.getElementById('outputValue');
+    const swapBtn = document.getElementById('swapBtn');
+
+    let currentInput = "0";
+
+    // Initialize
+    function init() {
+        const categories = Object.keys(unitData).sort(); 
+        categories.forEach(cat => {
+            let option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            categorySelect.appendChild(option);
+        });
+
+        categorySelect.value = "Length";
+        populateUnits();
+    }
+
+    function populateUnits() {
+        const category = categorySelect.value;
+        const units = Object.keys(unitData[category]);
+        
+        fromUnitSelect.innerHTML = "";
+        toUnitSelect.innerHTML = "";
+
+        units.forEach(unit => {
+            fromUnitSelect.appendChild(new Option(unit, unit));
+            toUnitSelect.appendChild(new Option(unit, unit));
+        });
+
+        if (units.length > 1) toUnitSelect.selectedIndex = 1;
+        convert();
+    }
+
+    // Pure Input Handling (No Math Logic)
+    function input(char) {
+        if (char === 'AC') {
+            currentInput = "0";
+        } 
+        else if (char === 'DEL') {
+            currentInput = currentInput.slice(0, -1);
+            if (currentInput === "" || currentInput === "-") currentInput = "0";
+        } 
+        else {
+            if (char === '.' && currentInput.includes('.')) return;
+            if (currentInput === "0" && char !== '.') {
+                currentInput = char;
+            } else {
+                currentInput += char;
+            }
+        }
+        updateDisplays();
+    }
+
+    // Minus toggle for Temperature
+    function swapSign() {
+        if (currentInput !== "0") {
+            currentInput = currentInput.startsWith("-") ? currentInput.substring(1) : "-" + currentInput;
+            updateDisplays();
+        }
+    }
+
+    function updateDisplays() {
+        inputDisplay.textContent = currentInput;
+        inputDisplay.scrollLeft = inputDisplay.scrollWidth;
+        convert();
+    }
+
+    // Core Engine
+    function convert() {
+        const category = categorySelect.value;
+        const fromUnit = fromUnitSelect.value;
+        const toUnit = toUnitSelect.value;
+        const val = parseFloat(currentInput);
+
+        if (isNaN(val)) {
+            outputDisplay.textContent = "0";
+            return;
+        }
+
+        let result = 0;
+
+        if (category === "Temperature") {
+            let c = 0;
+            if (fromUnit.includes("Celsius")) c = val;
+            else if (fromUnit.includes("Fahrenheit")) c = (val - 32) * 5/9;
+            else if (fromUnit.includes("Kelvin")) c = val - 273.15;
+
+            if (toUnit.includes("Celsius")) result = c;
+            else if (toUnit.includes("Fahrenheit")) result = (c * 9/5) + 32;
+            else if (toUnit.includes("Kelvin")) result = c + 273.15;
+        } 
+        else {
+            const fromFactor = unitData[category][fromUnit];
+            const toFactor = unitData[category][toUnit];
+            const valueInBase = val * fromFactor;
+            result = valueInBase / toFactor;
+        }
+
+        if (result === 0) {
+            outputDisplay.textContent = "0";
+        } else if (Math.abs(result) < 0.00001 || Math.abs(result) > 9999999) {
+            outputDisplay.textContent = result.toExponential(4).replace('+', '');
+        } else {
+            outputDisplay.textContent = parseFloat(result.toFixed(8)).toString();
+        }
+        
+        outputDisplay.scrollLeft = outputDisplay.scrollWidth;
+    }
+
+    // Event Listeners
+    categorySelect.addEventListener('change', populateUnits);
+    fromUnitSelect.addEventListener('change', convert);
+    toUnitSelect.addEventListener('change', convert);
+
+    swapBtn.addEventListener('click', () => {
+        const temp = fromUnitSelect.value;
+        fromUnitSelect.value = toUnitSelect.value;
+        toUnitSelect.value = temp;
+        convert();
+    });
+
+    init();
+</script>
+</body>
+</html>

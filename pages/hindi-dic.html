@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Hindi Dictionary</title>
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif;
+            -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
+        }
+        ::selection { background-color: transparent; }
+        input[type="text"] { -webkit-user-select: auto; user-select: auto; }
+        
+        body { background: #0f172a; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { background: #1e293b; width: 100%; max-width: 400px; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { text-align: center; color: #f97316; margin-bottom: 20px; font-size: 22px; }
+        
+        .search-box { position: relative; margin-bottom: 20px; }
+        input { width: 100%; background: #0f172a; border: 2px solid #334155; color: #fff; padding: 15px 50px 15px 15px; border-radius: 12px; font-size: 16px; outline: none; }
+        input:focus { border-color: #f97316; }
+        .btn-search { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; }
+        .btn-search svg { fill: #f97316; width: 24px; }
+        
+        .loader { display: none; text-align: center; margin: 10px 0; color: #f97316; font-weight: bold;}
+        .error { color: #ef4444; text-align: center; display: none; font-size: 14px; margin-bottom: 15px;}
+        
+        .result { background: #0f172a; padding: 20px; border-radius: 15px; display: none; position: relative; border-left: 4px solid #f97316;}
+        .source { color: #94a3b8; font-size: 14px; margin-bottom: 5px; text-transform: capitalize;}
+        .translation { color: #fff; font-size: 28px; font-weight: bold; }
+        .actions { position: absolute; right: 15px; top: 15px; display: flex; gap: 10px; }
+        .act-btn { background: #334155; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .act-btn svg { fill: #fff; width: 16px; }
+        
+        .history { margin-top: 20px; }
+        .history h3 { font-size: 12px; color: #64748b; margin-bottom: 10px; text-transform: uppercase; }
+        .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .tag { background: #0f172a; border: 1px solid #334155; color: #cbd5e1; padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Hindi Dictionary Pro</h1>
+    <div class="search-box">
+        <input type="text" id="inputTxt" placeholder="Type English or Hindi..." autocomplete="off">
+        <button class="btn-search" onclick="search()"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button>
+    </div>
+    
+    <div class="loader" id="ldr">Searching...</div>
+    <div class="error" id="err">Word not found.</div>
+
+    <div class="result" id="resCard">
+        <div class="actions">
+            <button class="act-btn" onclick="speak()"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></button>
+            <button class="act-btn" onclick="copyTxt()"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+        </div>
+        <div class="source" id="srcText">Word</div>
+        <div class="translation" id="trText">Translation</div>
+    </div>
+
+    <div class="history">
+        <h3>History</h3>
+        <div class="tags" id="historyTags"></div>
+    </div>
+</div>
+
+<script>
+    let currentTrans = '';
+    document.getElementById('inputTxt').addEventListener('keypress', (e) => { if(e.key==='Enter') search(); });
+
+    async function search(query = null) {
+        const val = query || document.getElementById('inputTxt').value.trim();
+        if(!val) return;
+        
+        document.getElementById('inputTxt').value = val;
+        document.getElementById('resCard').style.display = 'none';
+        document.getElementById('err').style.display = 'none';
+        document.getElementById('ldr').style.display = 'block';
+
+        let target = 'hi';
+        if(/[\u0900-\u097F]/.test(val)) target = 'en'; // If Hindi input, translate to English
+
+        try {
+            const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&q=${encodeURIComponent(val)}`);
+            const data = await res.json();
+            currentTrans = data[0][0][0];
+            document.getElementById('srcText').innerText = val;
+            document.getElementById('trText').innerText = currentTrans;
+            document.getElementById('resCard').style.display = 'block';
+            addHist(val);
+        } catch {
+            document.getElementById('err').style.display = 'block';
+        }
+        document.getElementById('ldr').style.display = 'none';
+    }
+
+    function speak() {
+        const ut = new SpeechSynthesisUtterance(currentTrans);
+        ut.lang = /^[a-zA-Z0-9\s]+$/.test(currentTrans) ? 'en-US' : 'hi-IN';
+        speechSynthesis.speak(ut);
+    }
+    function copyTxt() { navigator.clipboard.writeText(currentTrans); alert("Copied!"); }
+    
+    function addHist(word) {
+        const tags = document.getElementById('historyTags');
+        const d = document.createElement('div');
+        d.className = 'tag'; d.innerText = word;
+        d.onclick = () => search(word);
+        tags.prepend(d);
+        if(tags.children.length > 8) tags.lastChild.remove();
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>World Wiki Pro Copy</title>
+    
+    <!-- DATA FILE -->
+    <script src="data.js"></script>
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --red: #ef4444;
+            --icon-bg: #f1f5f9;
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+
+        * { 
+            box-sizing: border-box; margin: 0; padding: 0; 
+            font-family: var(--font-stack);
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none; user-select: none;
+        }
+
+        input, .selectable-text { -webkit-user-select: text; user-select: text; }
+
+        body { background-color: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* HEADER */
+        .header {
+            background: var(--gradient);
+            padding: 20px 20px 25px 20px;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
+            z-index: 10; flex-shrink: 0;
+        }
+        
+        .app-title { 
+            font-size: 1.5rem; font-weight: 800; margin-bottom: 15px; 
+            color: #fff; text-align: center; letter-spacing: 0.5px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+
+        .search-container {
+            position: relative;
+            background: #fff; border-radius: 14px;
+            display: flex; align-items: center; padding: 0 15px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .search-icon { width: 20px; height: 20px; stroke: #94a3b8; }
+        .search-box {
+            width: 100%; padding: 14px 10px; border: none; 
+            font-size: 1rem; outline: none; color: var(--text); font-weight: 500;
+        }
+        .search-box::placeholder { color: #94a3b8; }
+
+        /* LIST */
+        #countryList {
+            flex: 1; overflow-y: auto; padding: 20px;
+            display: flex; flex-direction: column; gap: 12px;
+            scroll-behavior: smooth;
+        }
+
+        .card {
+            background: var(--card-bg); padding: 12px 16px; border-radius: 16px;
+            display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border: 1px solid var(--border);
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .card:active { transform: scale(0.98); background: #f1f5f9; }
+
+        /* SQUARE LIST FLAG */
+        .list-flag-box {
+            width: 50px; height: 50px;
+            background: var(--icon-bg);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; line-height: 1; flex-shrink: 0;
+            border: 1px solid var(--border);
+        }
+        
+        .info { flex: 1; overflow: hidden; }
+        .name { font-weight: 700; font-size: 1.05rem; color: var(--text); margin-bottom: 2px;}
+        .sub-info { font-size: 0.85rem; color: var(--text-light); font-weight: 400; }
+
+        .fav-btn {
+            background: none; border: none; cursor: pointer; padding: 8px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .heart-icon {
+            width: 24px; height: 24px; fill: none; stroke: #cbd5e1; stroke-width: 2;
+            transition: 0.3s;
+        }
+        .fav-btn.active .heart-icon { fill: var(--red); stroke: var(--red); transform: scale(1.15); }
+
+        /* DETAIL VIEW */
+        #detailView {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); z-index: 50;
+            transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column;
+        }
+        #detailView.active { transform: translateX(0); }
+
+        .detail-header {
+            background: var(--card-bg); padding: 15px 20px; 
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-btn {
+            background: #f1f5f9; border: none; width: 40px; height: 40px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text);
+        }
+
+        .detail-content { flex: 1; overflow-y: auto; padding: 0 20px 40px 20px; }
+
+        /* HERO SECTION */
+        .hero-section {
+            display: flex; flex-direction: column; align-items: center;
+            margin: 25px 0 20px 0;
+        }
+        .detail-flag-box {
+            width: 100px; height: 100px;
+            background: #ffffff;
+            border-radius: 24px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 55px; margin-bottom: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+        }
+        .detail-title { font-size: 1.8rem; font-weight: 800; color: var(--text); line-height: 1.2; text-align: center; }
+
+        /* COPY BUTTON */
+        .copy-btn {
+            background: var(--text); color: #fff;
+            border: none; padding: 12px 24px;
+            border-radius: 12px; font-weight: 600; font-size: 0.95rem;
+            display: flex; align-items: center; gap: 8px;
+            cursor: pointer; margin: 10px auto 25px auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+        .copy-btn:active { transform: scale(0.96); opacity: 0.9; }
+        .copy-btn svg { width: 18px; height: 18px; }
+
+        /* SECTIONS */
+        .section {
+            background: var(--card-bg); border-radius: 16px; padding: 20px; 
+            margin-bottom: 16px; border: 1px solid var(--border);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .section-header {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;
+        }
+        .sec-icon { width: 22px; height: 22px; stroke: var(--primary); }
+        .sec-title { font-size: 0.85rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
+
+        .row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.95rem; }
+        .label { color: var(--text-light); font-weight: 500; display: flex; align-items: center; gap: 6px; }
+        .label svg { width: 16px; height: 16px; stroke: var(--text-light); }
+        .val { font-weight: 600; text-align: right; color: var(--text); }
+
+        .fact-box {
+            background: #fffbeb; border: 1px solid #fcd34d; color: #92400e;
+            padding: 15px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5;
+            display: flex; gap: 12px; align-items: start;
+        }
+
+        /* TOAST NOTIFICATION */
+        #toast {
+            visibility: hidden; min-width: 250px; margin-left: -125px;
+            background-color: #333; color: #fff; text-align: center;
+            border-radius: 50px; padding: 16px; position: fixed;
+            z-index: 100; left: 50%; bottom: 30px;
+            font-size: 1rem; opacity: 0; transition: opacity 0.3s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        #toast.show { visibility: visible; opacity: 1; }
+
+        .loader { text-align: center; padding: 50px; color: var(--text-light); }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="app-title">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M2 12h20"></path></svg>
+            World Wiki
+        </div>
+        
+        <div class="search-container">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="searchInput" class="search-box" placeholder="Search country, capital, code...">
+        </div>
+    </div>
+
+    <div id="countryList">
+        <div class="loader">Loading Data...</div>
+    </div>
+
+    <div id="detailView">
+        <div class="detail-header">
+            <button class="nav-btn" onclick="closeDetail()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <span style="font-weight: 600;">Details</span>
+            <div style="width: 40px;"></div>
+        </div>
+        <div class="detail-content selectable-text" id="detailContent"></div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast">Details Copied! 📋</div>
+
+<script>
+    const listContainer = document.getElementById('countryList');
+    const searchInput = document.getElementById('searchInput');
+    const detailView = document.getElementById('detailView');
+    const detailContent = document.getElementById('detailContent');
+    const toast = document.getElementById("toast");
+    const numFmt = (num) => new Intl.NumberFormat().format(num);
+
+    let favorites = JSON.parse(localStorage.getItem('favCountries')) || [];
+
+    // --- SVGs Collection (Inline) ---
+    const icons = {
+        pin: '<svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>',
+        coin: '<svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>',
+        build: '<svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="10"></line></svg>',
+        bulb: '<svg style="width:24px;height:24px;stroke:#92400e;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.9.31-1.8.39-2.73a8 8 0 1 0-7 2.73"></path></svg>',
+        globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>',
+        phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>',
+        wifi: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>',
+        car: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17h2m8 0h2"></path></svg>'
+    };
+
+    window.onload = function() {
+        if (typeof rawCountryData !== 'undefined') {
+            sortAndRender();
+        } else {
+            listContainer.innerHTML = '<div class="loader">❌ Error: data.js missing</div>';
+        }
+    };
+
+    function sortAndRender() {
+        rawCountryData.sort((a, b) => {
+            const isFavA = favorites.includes(a.iso2);
+            const isFavB = favorites.includes(b.iso2);
+            if (isFavA && !isFavB) return -1;
+            if (!isFavA && isFavB) return 1;
+            if (a.name === 'India') return -1;
+            if (b.name === 'India') return 1;
+            return a.name.localeCompare(b.name);
+        });
+        renderList(rawCountryData);
+    }
+
+    function renderList(data) {
+        listContainer.innerHTML = '';
+        if(data.length === 0) {
+            listContainer.innerHTML = '<div class="loader">No results found</div>';
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        data.forEach(c => {
+            const isFav = favorites.includes(c.iso2);
+            const div = document.createElement('div');
+            div.className = 'card';
+            const flag = c.flagEmoji || '🏳️';
+
+            div.onclick = (e) => {
+                if(e.target.closest('.fav-btn')) return;
+                openDetail(c);
+            };
+
+            div.innerHTML = `
+                <div class="list-flag-box">${flag}</div>
+                <div class="info">
+                    <div class="name">${c.name}</div>
+                    <div class="sub-info">${c.capital || 'N/A'} • ${c.iso2 || ''}</div>
+                </div>
+                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav('${c.iso2}', this)">
+                    <svg class="heart-icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                </button>
+            `;
+            fragment.appendChild(div);
+        });
+        listContainer.appendChild(fragment);
+    }
+
+    window.toggleFav = function(iso, btn) {
+        if (favorites.includes(iso)) {
+            favorites = favorites.filter(id => id !== iso);
+            btn.classList.remove('active');
+        } else {
+            favorites.push(iso);
+            btn.classList.add('active');
+        }
+        localStorage.setItem('favCountries', JSON.stringify(favorites));
+        
+        if(searchInput.value === '') {
+            setTimeout(sortAndRender, 300);
+        }
+    };
+
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase().trim();
+        if(!term) { sortAndRender(); return; }
+        const filtered = rawCountryData.filter(c => 
+            c.name.toLowerCase().includes(term) || 
+            (c.capital && c.capital.toLowerCase().includes(term)) ||
+            (c.iso2 && c.iso2.toLowerCase().includes(term))
+        );
+        renderList(filtered);
+    });
+
+    function openDetail(c) {
+        const mkRow = (icon, lbl, val) => val ? `<div class="row"><span class="label">${icon} ${lbl}</span> <span class="val">${val}</span></div>` : '';
+        
+        let gdpString = null;
+        if (c.gdp) {
+            gdpString = '$' + c.gdp + ' Billion';
+            if (c.gdpYear) gdpString += ` <span style="font-size:0.8em;color:var(--text-light)">(${c.gdpYear})</span>`;
+        }
+
+        let landmarkHTML = '';
+        if(c.landmarks?.length) {
+            landmarkHTML = `<div class="section"><div class="section-header">${icons.build}<span class="sec-title">Landmarks</span></div>`;
+            c.landmarks.forEach(l => {
+                landmarkHTML += `<div style="margin-bottom:12px; border-left:3px solid var(--primary); padding-left:12px;">
+                    <div style="font-weight:600; color:var(--text);">${l.name}</div>
+                    <div style="font-size:0.85rem; color:var(--text-light);">${l.description}</div>
+                </div>`;
+            });
+            landmarkHTML += `</div>`;
+        }
+
+        let factsHTML = '';
+        if(c.funFacts?.length) {
+            factsHTML = `<div class="section"><div class="section-header" style="color:#92400e;">${icons.bulb}<span class="sec-title" style="color:#92400e;">Did You Know?</span></div>`;
+            c.funFacts.forEach(f => factsHTML += `<div class="fact-box">${f}</div>`);
+            factsHTML += `</div>`;
+        }
+
+        detailContent.innerHTML = `
+            <div class="hero-section">
+                <div class="detail-flag-box">${c.flagEmoji || '🏳️'}</div>
+                <div class="detail-title">${c.name}</div>
+            </div>
+
+            <!-- COPY BUTTON -->
+            <button class="copy-btn" onclick="copyInfo('${c.iso2}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copy All Details
+            </button>
+
+            <div class="section">
+                <div class="section-header">${icons.pin}<span class="sec-title">Quick Info</span></div>
+                ${mkRow(icons.globe, 'Capital', c.capital)}
+                ${mkRow(icons.globe, 'Region', c.region || c.continent)}
+                ${mkRow(icons.globe, 'Population', c.population ? numFmt(c.population) : null)}
+                ${mkRow(icons.globe, 'Area', c.area ? numFmt(c.area) + ' km²' : null)}
+                ${mkRow(icons.globe, 'Timezone', c.timezone)}
+            </div>
+
+            <div class="section">
+                <div class="section-header">${icons.coin}<span class="sec-title">Economy & Codes</span></div>
+                ${mkRow(icons.coin, 'Currency', c.currency || c.currencyName)}
+                ${mkRow(icons.coin, 'GDP (Est.)', gdpString)}
+                ${mkRow(icons.globe, 'ISO Codes', `${c.iso2} / ${c.iso3}`)}
+                ${mkRow(icons.phone, 'Calling Code', c.phone)}
+                ${mkRow(icons.wifi, 'Internet TLD', c.internet)}
+                ${mkRow(icons.car, 'Driving Side', c.drivingSide ? c.drivingSide.toUpperCase() : null)}
+            </div>
+
+            ${landmarkHTML}
+            ${factsHTML}
+        `;
+
+        detailView.classList.add('active');
+        history.pushState({view: 'detail'}, null, "");
+    }
+
+    // --- IMPROVED COPY FUNCTION (LOOPS EVERYTHING) ---
+    window.copyInfo = function(iso) {
+        const c = rawCountryData.find(x => x.iso2 === iso);
+        if(!c) return;
+
+        let txt = `🌍 *${c.name}* ${c.flagEmoji || ''}\n`;
+        txt += `-------------------------\n`;
+        
+        // Basic Info
+        txt += `📍 Capital: ${c.capital || 'N/A'}\n`;
+        txt += `🌎 Region: ${c.region || 'N/A'}\n`;
+        txt += `👥 Population: ${c.population ? numFmt(c.population) : 'N/A'}\n`;
+        txt += `📐 Area: ${c.area ? numFmt(c.area) : 'N/A'} km²\n\n`;
+        
+        // Economy & Codes
+        txt += `💰 Currency: ${c.currency || 'N/A'}\n`;
+        txt += `📈 GDP: ${c.gdp ? '$' + c.gdp + ' Billion' : 'N/A'}\n`;
+        txt += `📞 Call Code: ${c.phone || 'N/A'}\n`;
+        txt += `🚗 Driving Side: ${c.drivingSide ? c.drivingSide.toUpperCase() : 'N/A'}\n`;
+        txt += `🌐 Internet: ${c.internet || 'N/A'}\n`;
+        txt += `🆔 ISO Code: ${c.iso2} / ${c.iso3}\n`;
+
+        // Landmarks (Loop All)
+        if(c.landmarks && c.landmarks.length > 0) {
+            txt += `\n🏛️ *Must See Landmarks:*\n`;
+            c.landmarks.forEach(l => {
+                txt += `• ${l.name}: ${l.description}\n`;
+            });
+        }
+
+        // Fun Facts (Loop All)
+        if(c.funFacts && c.funFacts.length > 0) {
+            txt += `\n💡 *Did You Know?*\n`;
+            c.funFacts.forEach(f => {
+                txt += `• ${f}\n`;
+            });
+        }
+
+        txt += `\n(Copied from World Wiki)`;
+
+        navigator.clipboard.writeText(txt).then(() => {
+            showToast();
+        }).catch(err => {
+            alert("Error copying text. Please select manually.");
+        });
+    };
+
+    function showToast() {
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    function closeDetail() { detailView.classList.remove('active'); }
+    window.onpopstate = () => { if(detailView.classList.contains('active')) closeDetail(); };
+</script>
+</body>
+</html>
